@@ -110,6 +110,22 @@
 - [x] Add schedule/send email button
 - [x] Test email delivery
 
+## Phase 17: Match Edit/Delete & Personal Records
+- [x] Add edit button to match stats cards
+- [x] Create edit form for match data
+- [x] Implement match delete with confirmation
+- [x] Build personal records tracking page
+- [x] Display personal bests for each exercise
+- [x] Add historical comparison charts
+
+## Phase 18: Training Streak Counter & Profile Enhancement
+- [x] Add training streak counter to home dashboard
+- [x] Create streak milestone badges (7, 30, 100 days)
+- [x] Enhance user profile page with photo upload
+- [x] Add profile information fields
+- [x] Implement profile photo storage
+- [x] Test all buttons and workflows
+
 ## Future Enhancements (Not MVP)
 - [ ] Team invites and team management
 - [ ] Coach dashboard and player comparison

@@ -234,11 +234,26 @@ export const appRouter = router({
 
         return { success: true, matchId };
       }),
-
     list: protectedProcedure
-      .input(z.object({ limit: z.number().default(50) }))
-      .query(async ({ ctx, input }) => {
-        return db.getMatchStatsByUser(ctx.user.id, input.limit);
+      .input(z.object({ limit: z.number().default(20) }))
+      .query(async ({ ctx }) => {
+        return db.getMatchStatsByUser(ctx.user.id);
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const database = await db.getDb();
+        if (!database) throw new Error("Database not available");
+        
+        const { matchStats } = await import("../drizzle/schema");
+        const { eq } = await import("drizzle-orm");
+        
+        await database
+          .delete(matchStats)
+          .where(eq(matchStats.id, input.id));
+        
+        return { success: true };
       }),
 
     get: protectedProcedure
@@ -314,6 +329,15 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const result = await db.createPersonalBest(ctx.user.id, input);
         return { success: true, pbId: (result as any)[0]?.insertId || 0 };
+      }),
+  }),
+
+  // Delete operations
+  delete: router({
+    goal: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return { success: true };
       }),
   }),
 

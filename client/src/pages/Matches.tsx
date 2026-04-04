@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trophy } from "lucide-react";
+import { Plus, Trophy, Trash2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -41,8 +41,20 @@ export default function Matches() {
     kicksFromHand: "",
   });
 
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
   const matchesMutation = trpc.matches.create.useMutation();
   const matchesList = trpc.matches.list.useQuery({ limit: 20 });
+  const deleteMatch = trpc.matches.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Match deleted!");
+      setDeleteConfirm(null);
+      matchesList.refetch();
+    },
+    onError: () => {
+      toast.error("Failed to delete match");
+    },
+  });
 
   const handleSubmit = async () => {
     if (!date || !opponent) {
@@ -314,7 +326,7 @@ export default function Matches() {
           <p className="text-muted-foreground">Loading...</p>
         ) : matchesList.data && matchesList.data.length > 0 ? (
           <div className="space-y-3">
-            {matchesList.data.map((match) => (
+            {matchesList.data.map((match: any) => (
               <div
                 key={match.id}
                 className="flex justify-between items-center p-4 bg-background rounded border border-border hover:border-neon-cyan transition-colors"
@@ -331,19 +343,48 @@ export default function Matches() {
                     {match.competition || "Match"}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-neon-pink">{match.finalScore}</p>
-                  <p
-                    className={`text-sm font-semibold ${
-                      match.result === "win"
-                        ? "text-neon-cyan"
-                        : match.result === "loss"
-                          ? "text-destructive"
-                          : "text-muted-foreground"
-                    }`}
-                  >
-                    {match.result?.toUpperCase()}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="font-bold text-neon-pink">{match.finalScore}</p>
+                    <p
+                      className={`text-sm font-semibold ${
+                        match.result === "win"
+                          ? "text-neon-cyan"
+                          : match.result === "loss"
+                            ? "text-destructive"
+                            : "text-muted-foreground"
+                      }`}
+                    >
+                      {match.result?.toUpperCase()}
+                    </p>
+                  </div>
+                  {deleteConfirm === match.id ? (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => deleteMatch.mutate({ id: match.id })}
+                        className="bg-destructive text-white hover:bg-destructive/90"
+                      >
+                        Confirm
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDeleteConfirm(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setDeleteConfirm(match.id)}
+                      className="text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
