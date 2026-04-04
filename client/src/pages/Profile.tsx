@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Camera, Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -14,27 +14,49 @@ export default function Profile() {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
+    name: "",
+    email: "",
     age: "",
     position: "",
     height: "",
     weight: "",
-    dominantFoot: "right",
+    dominantFoot: "right" as "left" | "right" | "both",
     team: "",
     seasonGoals: "",
   });
 
+  // Fetch profile data
+  const { data: profileData } = trpc.profile.get.useQuery();
   const trainingList = trpc.training.list.useQuery({ limit: 100 });
+  
   const updateProfile = trpc.profile.update.useMutation({
     onSuccess: () => {
       toast.success("Profile updated successfully!");
       setIsEditing(false);
+      // Refetch profile data
+      trpc.useUtils().profile.get.invalidate();
     },
     onError: () => {
       toast.error("Failed to update profile");
     },
   });
+
+  // Initialize form data from user profile
+  useEffect(() => {
+    if (profileData) {
+      setFormData({
+        name: profileData.name || "",
+        email: profileData.email || "",
+        age: (profileData as any).age ? String((profileData as any).age) : "",
+        position: (profileData as any).position || "",
+        height: (profileData as any).height ? String((profileData as any).height) : "",
+        weight: (profileData as any).weight ? String((profileData as any).weight) : "",
+        dominantFoot: ((profileData as any).dominantFoot || "right") as "left" | "right" | "both",
+        team: (profileData as any).team || "",
+        seasonGoals: (profileData as any).seasonGoals || "",
+      });
+    }
+  }, [profileData]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,10 +77,30 @@ export default function Profile() {
       position: formData.position,
       height: formData.height ? parseFloat(formData.height) : undefined,
       weight: formData.weight ? parseFloat(formData.weight) : undefined,
-      dominantFoot: formData.dominantFoot as "left" | "right" | "both",
+      dominantFoot: formData.dominantFoot,
       team: formData.team,
       seasonGoals: formData.seasonGoals,
     });
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setProfilePhoto(null);
+    setPhotoFile(null);
+    // Reset form to current data
+    if (profileData) {
+      setFormData({
+        name: profileData.name || "",
+        email: profileData.email || "",
+        age: (profileData as any).age ? String((profileData as any).age) : "",
+        position: (profileData as any).position || "",
+        height: (profileData as any).height ? String((profileData as any).height) : "",
+        weight: (profileData as any).weight ? String((profileData as any).weight) : "",
+        dominantFoot: ((profileData as any).dominantFoot || "right") as "left" | "right" | "both",
+        team: (profileData as any).team || "",
+        seasonGoals: (profileData as any).seasonGoals || "",
+      });
+    }
   };
 
   // Calculate training stats
@@ -75,7 +117,7 @@ export default function Profile() {
   const conditioningSessions = trainingList.data?.filter((s: any) => s.type === "conditioning").length || 0;
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container py-6 space-y-6 pb-20">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-neon-pink neon-glow">
           Player Profile
@@ -122,7 +164,7 @@ export default function Profile() {
             {!isEditing ? (
               <div className="space-y-2 text-foreground">
                 <p><span className="text-muted-foreground">Name:</span> {formData.name || "Not set"}</p>
-                <p><span className="text-muted-foreground">Email:</span> {user?.email || "Not set"}</p>
+                <p><span className="text-muted-foreground">Email:</span> {formData.email || "Not set"}</p>
                 <p><span className="text-muted-foreground">Position:</span> {formData.position || "Not set"}</p>
                 <p><span className="text-muted-foreground">Age:</span> {formData.age || "Not set"}</p>
                 <p><span className="text-muted-foreground">Height:</span> {formData.height ? `${formData.height} cm` : "Not set"}</p>
@@ -182,7 +224,7 @@ export default function Profile() {
                     <Label className="text-foreground">Dominant Foot</Label>
                     <select
                       value={formData.dominantFoot}
-                      onChange={(e) => setFormData({ ...formData, dominantFoot: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, dominantFoot: e.target.value as "left" | "right" | "both" })}
                       className="w-full px-3 py-2 bg-input border border-border text-foreground rounded"
                     >
                       <option value="left">Left</option>
@@ -233,11 +275,7 @@ export default function Profile() {
                   {updateProfile.isPending ? "Saving..." : "Save Changes"}
                 </Button>
                 <Button
-                  onClick={() => {
-                    setIsEditing(false);
-                    setProfilePhoto(null);
-                    setPhotoFile(null);
-                  }}
+                  onClick={handleCancel}
                   variant="outline"
                   className="flex-1 flex items-center gap-2"
                 >
@@ -250,35 +288,32 @@ export default function Profile() {
         </div>
       </Card>
 
-      {/* Training Summary */}
+      {/* Training Statistics */}
       <Card className="card-neon p-6">
-        <h2 className="text-xl font-bold text-neon-cyan mb-4">Training Summary</h2>
-        {trainingList.isLoading ? (
-          <p className="text-muted-foreground">Loading...</p>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-3 bg-background rounded border border-border">
-              <p className="text-sm text-muted-foreground">Total Workouts</p>
-              <p className="text-2xl font-bold text-neon-pink">{totalWorkouts}</p>
-            </div>
-            <div className="p-3 bg-background rounded border border-border">
-              <p className="text-sm text-muted-foreground">Gym Sessions</p>
-              <p className="text-2xl font-bold text-neon-cyan">{gymSessions}</p>
-            </div>
-            <div className="p-3 bg-background rounded border border-border">
-              <p className="text-sm text-muted-foreground">Running Sessions</p>
-              <p className="text-2xl font-bold text-neon-cyan">{runningSessions}</p>
-            </div>
-            <div className="p-3 bg-background rounded border border-border">
-              <p className="text-sm text-muted-foreground">Conditioning</p>
-              <p className="text-2xl font-bold text-neon-cyan">{conditioningSessions}</p>
-            </div>
-            <div className="p-3 bg-background rounded border border-border md:col-span-2">
-              <p className="text-sm text-muted-foreground">Total Distance</p>
-              <p className="text-2xl font-bold text-neon-pink">{totalDistance.toFixed(1)} km</p>
-            </div>
+        <h2 className="text-xl font-bold text-neon-cyan mb-4">Training Statistics</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 bg-background rounded border border-border">
+            <p className="text-xs text-muted-foreground">Total Workouts</p>
+            <p className="text-2xl font-bold text-neon-pink">{totalWorkouts}</p>
           </div>
-        )}
+          <div className="p-4 bg-background rounded border border-border">
+            <p className="text-xs text-muted-foreground">Total Distance</p>
+            <p className="text-2xl font-bold text-neon-cyan">{totalDistance.toFixed(1)}</p>
+            <p className="text-xs text-muted-foreground">km</p>
+          </div>
+          <div className="p-4 bg-background rounded border border-border">
+            <p className="text-xs text-muted-foreground">Gym Sessions</p>
+            <p className="text-2xl font-bold text-neon-purple">{gymSessions}</p>
+          </div>
+          <div className="p-4 bg-background rounded border border-border">
+            <p className="text-xs text-muted-foreground">Running</p>
+            <p className="text-2xl font-bold text-neon-cyan">{runningSessions}</p>
+          </div>
+          <div className="p-4 bg-background rounded border border-border">
+            <p className="text-xs text-muted-foreground">Conditioning</p>
+            <p className="text-2xl font-bold text-neon-pink">{conditioningSessions}</p>
+          </div>
+        </div>
       </Card>
     </div>
   );
