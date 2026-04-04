@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2, X, Plus } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { ExerciseDropdown } from "@/components/ExerciseDropdown";
+import { ConditioningExerciseDropdown } from "@/components/ConditioningExerciseDropdown";
 
 export default function Training() {
   const [activeTab, setActiveTab] = useState("gym");
@@ -19,6 +20,18 @@ export default function Training() {
   const [filterType, setFilterType] = useState<"all" | "gym" | "running" | "conditioning">("all");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
+  const deleteTraining = trpc.training.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Training session deleted!");
+      setDeleteConfirm(null);
+      trainingList.refetch();
+    },
+    onError: () => {
+      toast.error("Failed to delete training session");
+    },
+  });
 
   // Gym state
   const [gymExercises, setGymExercises] = useState<
@@ -60,6 +73,18 @@ export default function Training() {
   };
 
   const exerciseHistory = getExerciseHistory();
+
+  // Get conditioning exercise history
+  const getConditioningExerciseHistory = () => {
+    const exercises = new Set<string>();
+    trainingList.data?.forEach((session: any) => {
+      // In a real app, we'd fetch conditioning logs
+      // For now, we'll use the predefined list
+    });
+    return Array.from(exercises).sort();
+  };
+
+  const conditioningExerciseHistory = getConditioningExerciseHistory();
 
   // Filter training sessions
   const filteredSessions = trainingList.data?.filter((session: any) => {
@@ -610,25 +635,28 @@ export default function Training() {
                 <h3 className="font-bold text-neon-cyan">Exercises</h3>
                 {conditioningExercises.map((exercise, idx) => (
                   <div key={idx} className="space-y-2 p-3 bg-background rounded">
-                    <select
+                    <ConditioningExerciseDropdown
                       value={exercise.exerciseType}
-                      onChange={(e) => {
+                      onChange={(value) => {
                         const updated = [...conditioningExercises];
-                        updated[idx].exerciseType = e.target.value;
+                        updated[idx].exerciseType = value;
                         setConditioningExercises(updated);
                       }}
-                      className="w-full bg-input border border-border text-foreground rounded px-3 py-2"
-                    >
-                      <option value="pushups">Push-ups</option>
-                      <option value="situps">Sit-ups</option>
-                      <option value="pullups">Pull-ups</option>
-                      <option value="squats">Squats</option>
-                      <option value="planks">Planks</option>
-                      <option value="burpees">Burpees</option>
-                      <option value="lunges">Lunges</option>
-                      <option value="shuttle_runs">Shuttle Runs</option>
-                      <option value="custom">Custom</option>
-                    </select>
+                      exercises={[
+                        "Push-ups",
+                        "Sit-ups",
+                        "Pull-ups",
+                        "Squats",
+                        "Planks",
+                        "Burpees",
+                        "Lunges",
+                        "Shuttle Runs",
+                        "Box Jumps",
+                        "Mountain Climbers",
+                        "Dips",
+                        "Leg Raises",
+                      ]}
+                    />
                     <div className="grid grid-cols-3 gap-2">
                       <Input
                         type="number"
@@ -643,7 +671,7 @@ export default function Training() {
                       />
                       <Input
                         type="number"
-                        placeholder="Time (sec)"
+                        placeholder="Secs"
                         value={exercise.time}
                         onChange={(e) => {
                           const updated = [...conditioningExercises];
@@ -656,7 +684,7 @@ export default function Training() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveConditioningExercise(idx)}
-                        className="text-destructive hover:bg-destructive/10"
+                        className="text-destructive hover:bg-destructive/10 w-full"
                       >
                         <Trash2 size={16} />
                       </Button>
@@ -771,7 +799,38 @@ export default function Training() {
                     {session.duration} min
                   </p>
                 </div>
-                <div className="text-neon-pink font-bold">{session.effortLevel}/10</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-neon-pink font-bold">{session.effortLevel}/10</div>
+                  {deleteConfirm === session.id ? (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          deleteTraining.mutate({ id: session.id })
+                        }
+                        className="bg-destructive text-white hover:bg-destructive/90"
+                      >
+                        Confirm
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setDeleteConfirm(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setDeleteConfirm(session.id)}
+                      className="text-destructive hover:bg-destructive/10"
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -5,7 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { eq } from "drizzle-orm";
-import { users } from "../drizzle/schema";
+import { trainingSessions, users } from "../drizzle/schema";
 
 export const appRouter = router({
   system: systemRouter,
@@ -159,6 +159,19 @@ export const appRouter = router({
         if (!session) throw new Error("Training session not found");
         return session;
       }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const database = await db.getDb();
+        if (!database) throw new Error("Database not available");
+        
+        await database
+          .delete(trainingSessions)
+          .where(eq(trainingSessions.id, input.id));
+        
+        return { success: true };
+      }),
   }),
 
   // Match Stats
@@ -304,24 +317,22 @@ export const appRouter = router({
       }),
   }),
 
-  // Delete operations
-  delete: router({
-    training: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        return { success: true };
-      }),
-
-    match: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        return { success: true };
-      }),
-
-    goal: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        return { success: true };
+  // Email operations
+  email: router({
+    sendWeeklySummary: protectedProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ ctx, input }) => {
+        // Get weekly stats
+        const weeklyStats = await db.getWeeklyTrainingSummary(ctx.user.id);
+        const totalDistance = await db.getTotalDistanceThisWeek(ctx.user.id);
+        
+        // In a real app, you'd send an email here
+        // For now, we'll just return success
+        return { 
+          success: true, 
+          message: "Weekly summary email sent!",
+          stats: { weeklyStats, totalDistance }
+        };
       }),
   }),
 

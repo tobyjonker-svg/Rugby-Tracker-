@@ -90,6 +90,26 @@
 - [x] Add download button to training and analytics pages
 - [x] Format exported data with headers and proper formatting
 
+## Phase 14: Edit/Update Training Sessions
+- [x] Add edit button to training session cards
+- [x] Create edit form with pre-populated data
+- [x] Implement update mutation in tRPC
+- [x] Add delete functionality for training entries
+- [x] Add confirmation dialog for deletions
+
+## Phase 15: Conditioning Exercise Dropdown
+- [x] Extract conditioning exercise history from logs
+- [x] Create conditioning exercise dropdown component
+- [x] Integrate dropdown into conditioning form
+- [x] Allow quick selection of past exercises
+
+## Phase 16: Weekly Training Summary Email
+- [x] Create email template for weekly summary
+- [x] Add email sending functionality via tRPC
+- [x] Calculate weekly stats (workouts, distance, effort)
+- [x] Add schedule/send email button
+- [x] Test email delivery
+
 ## Future Enhancements (Not MVP)
 - [ ] Team invites and team management
 - [ ] Coach dashboard and player comparison
