@@ -4,10 +4,11 @@ import { Card } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
 import { Dumbbell, Trophy, Target, BarChart3, Zap, Bell, Share2, ArrowRight, CheckCircle, Users, Smartphone } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { NotificationService } from "@/services/notificationService";
 import { SocialShareService } from "@/services/socialShareService";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -202,6 +203,50 @@ export default function Home() {
   }
 
   // Authenticated Dashboard
+  const { data: trainingSessions } = trpc.training.list.useQuery({ limit: 50 });
+  const { data: matches } = trpc.matches.list.useQuery({ limit: 50 });
+
+  // Calculate live metrics
+  const metrics = useMemo(() => {
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay() + 1);
+
+    // This week workouts
+    const thisWeekWorkouts = trainingSessions?.filter((session: any) => {
+      const sessionDate = new Date(session.date);
+      return sessionDate >= weekStart && sessionDate <= today;
+    }).length || 0;
+
+    // Total distance (running)
+    const totalDistance = trainingSessions?.reduce((sum: number, session: any) => {
+      return sum + (session.runningData?.distance || 0);
+    }, 0) || 0;
+
+    // Personal best (pushups)
+    let pushupsPB = 0;
+    trainingSessions?.forEach((session: any) => {
+      if (session.conditioningLogs) {
+        session.conditioningLogs.forEach((log: any) => {
+          if (log.exerciseType === "pushups" && log.reps) {
+            pushupsPB = Math.max(pushupsPB, parseInt(log.reps));
+          }
+        });
+      }
+    });
+
+    // Recent match
+    const recentMatch = matches?.[0];
+    const recentMatchScore = recentMatch ? `${recentMatch.result?.toUpperCase()} ${recentMatch.finalScore || 'N/A'}` : 'N/A';
+
+    return {
+      thisWeekWorkouts,
+      totalDistance: totalDistance.toFixed(1),
+      pushupsPB,
+      recentMatchScore,
+    };
+  }, [trainingSessions, matches]);
+
   return (
     <div className="container py-6 space-y-6 pb-20">
       <div className="space-y-2">
@@ -215,23 +260,23 @@ export default function Home() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="card-neon p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">This Week</p>
-          <p className="text-3xl font-bold text-neon-pink neon-glow mt-2">5</p>
+          <p className="text-3xl font-bold text-neon-pink neon-glow mt-2">{metrics.thisWeekWorkouts}</p>
           <p className="text-xs text-muted-foreground mt-1">Workouts</p>
         </Card>
         <Card className="card-neon p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Distance</p>
-          <p className="text-3xl font-bold text-neon-cyan neon-glow-cyan mt-2">7.5</p>
+          <p className="text-3xl font-bold text-neon-cyan neon-glow-cyan mt-2">{metrics.totalDistance}</p>
           <p className="text-xs text-muted-foreground mt-1">km</p>
         </Card>
         <Card className="card-neon p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Push-ups PB</p>
-          <p className="text-3xl font-bold text-neon-purple mt-2">45</p>
+          <p className="text-3xl font-bold text-neon-purple mt-2">{metrics.pushupsPB}</p>
           <p className="text-xs text-muted-foreground mt-1">PB</p>
         </Card>
         <Card className="card-neon p-4">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">Recent Match</p>
-          <p className="text-3xl font-bold text-neon-pink neon-glow mt-2">WIN</p>
-          <p className="text-xs text-muted-foreground mt-1">28-21</p>
+          <p className="text-3xl font-bold text-neon-pink neon-glow mt-2">{metrics.recentMatchScore.split(' ')[0]}</p>
+          <p className="text-xs text-muted-foreground mt-1">{metrics.recentMatchScore.split(' ').slice(1).join(' ')}</p>
         </Card>
       </div>
 
