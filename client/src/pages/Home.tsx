@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
-import { Dumbbell, Trophy, Target, BarChart3, Zap, Bell, Share2 } from "lucide-react";
+import { Dumbbell, Trophy, Target, BarChart3, Zap, Bell, Share2, ArrowRight, CheckCircle, Users, Smartphone } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NotificationService } from "@/services/notificationService";
 import { SocialShareService } from "@/services/socialShareService";
@@ -14,217 +14,272 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 space-y-8">
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
         {/* Hero Section */}
-        <div className="text-center space-y-6 max-w-2xl">
-          <div className="text-6xl font-bold neon-glow animate-pulse">
-            ⚡ RUGBY TRACKER
+        <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20 space-y-8 relative overflow-hidden">
+          {/* Animated background elements */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-neon-pink rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-72 h-72 bg-neon-cyan rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
           </div>
-          <div className="text-2xl text-neon-cyan neon-glow-cyan font-bold">
-            Train Harder. Play Smarter. Track Everything.
+
+          <div className="text-center space-y-6 max-w-3xl relative z-10">
+            <div className="inline-block px-4 py-2 bg-neon-pink/10 border border-neon-pink rounded-full">
+              <span className="text-neon-pink font-bold text-sm">🏉 Elite Rugby Performance Platform</span>
+            </div>
+
+            <h1 className="text-6xl md:text-7xl font-black neon-glow">
+              RUGBY TRACKER
+            </h1>
+
+            <p className="text-3xl md:text-4xl font-bold text-neon-cyan neon-glow-cyan">
+              Train Harder. Play Smarter. Track Everything.
+            </p>
+
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Your personal rugby performance companion. Log workouts, track match stats, set goals, and monitor your progress with real-time analytics. Designed for rugby players who are serious about improvement.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+              <Button
+                onClick={() => window.location.href = getLoginUrl()}
+                className="btn-neon px-8 py-6 text-lg font-bold group"
+              >
+                Start Training Now
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
+              </Button>
+              <Button
+                variant="outline"
+                className="px-8 py-6 text-lg font-bold border-neon-cyan text-neon-cyan hover:bg-neon-cyan/10"
+              >
+                Watch Demo
+              </Button>
+            </div>
           </div>
-          <p className="text-lg text-muted-foreground">
-            Your personal rugby performance companion. Log workouts, track match stats, set goals, and monitor your progress with real-time analytics.
-          </p>
-        </div>
+        </section>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
-          <Card className="card-neon p-4 flex items-start gap-3">
-            <Dumbbell className="text-neon-pink flex-shrink-0 mt-1" size={24} />
-            <div>
-              <h3 className="font-bold text-foreground">Training Logs</h3>
-              <p className="text-sm text-muted-foreground">Track gym, running, and conditioning sessions</p>
+        {/* Features Section */}
+        <section className="py-20 px-4 bg-background/50">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-4 text-neon-pink neon-glow">
+              Powerful Features
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Everything you need to track, analyze, and improve your rugby performance
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  icon: Dumbbell,
+                  title: "Training Logs",
+                  description: "Track gym, running, and conditioning sessions with detailed metrics",
+                  color: "neon-pink"
+                },
+                {
+                  icon: Trophy,
+                  title: "Match Stats",
+                  description: "Log comprehensive game performance data including tackles, tries, and more",
+                  color: "neon-cyan"
+                },
+                {
+                  icon: Target,
+                  title: "Goal Tracking",
+                  description: "Set personal goals and monitor progress with visual indicators",
+                  color: "neon-purple"
+                },
+                {
+                  icon: BarChart3,
+                  title: "Analytics",
+                  description: "Real-time charts and insights into your training trends and performance",
+                  color: "neon-pink"
+                },
+                {
+                  icon: Zap,
+                  title: "AI Recommendations",
+                  description: "Get personalized workout suggestions based on your training patterns",
+                  color: "neon-cyan"
+                },
+                {
+                  icon: Smartphone,
+                  title: "Mobile First",
+                  description: "Optimized for on-the-go logging with offline support",
+                  color: "neon-purple"
+                }
+              ].map((feature, idx) => (
+                <Card key={idx} className="card-neon p-6 hover:shadow-lg hover:shadow-neon-pink/50 transition-all">
+                  <feature.icon className={`text-${feature.color} mb-4`} size={32} />
+                  <h3 className="text-xl font-bold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
+                </Card>
+              ))}
             </div>
-          </Card>
+          </div>
+        </section>
 
-          <Card className="card-neon p-4 flex items-start gap-3">
-            <Trophy className="text-neon-cyan flex-shrink-0 mt-1" size={24} />
-            <div>
-              <h3 className="font-bold text-foreground">Match Stats</h3>
-              <p className="text-sm text-muted-foreground">Log detailed game performance data</p>
+        {/* Benefits Section */}
+        <section className="py-20 px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-12 text-neon-cyan neon-glow-cyan">
+              Why Rugby Players Choose Us
+            </h2>
+
+            <div className="space-y-4">
+              {[
+                "Log training in seconds with smart exercise dropdowns",
+                "Visualize your progress with interactive analytics charts",
+                "Get AI-powered recommendations tailored to your goals",
+                "Access your data offline and sync automatically",
+                "Share achievements on social media",
+                "Track 16+ match performance metrics"
+              ].map((benefit, idx) => (
+                <div key={idx} className="flex items-center gap-4 p-4 bg-background/50 rounded-lg border border-border hover:border-neon-cyan/50 transition-colors">
+                  <CheckCircle className="text-neon-pink flex-shrink-0" size={24} />
+                  <span className="text-foreground font-medium">{benefit}</span>
+                </div>
+              ))}
             </div>
-          </Card>
+          </div>
+        </section>
 
-          <Card className="card-neon p-4 flex items-start gap-3">
-            <Target className="text-neon-purple flex-shrink-0 mt-1" size={24} />
-            <div>
-              <h3 className="font-bold text-foreground">Goal Tracking</h3>
-              <p className="text-sm text-muted-foreground">Set and monitor personal objectives</p>
+        {/* Social Proof Section */}
+        <section className="py-20 px-4 bg-background/50">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-4 text-neon-purple">
+              Trusted by Rugby Players Worldwide
+            </h2>
+            <p className="text-muted-foreground mb-12 text-lg">
+              Join thousands of rugby players improving their game every day
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { stat: "5,000+", label: "Active Players" },
+                { stat: "500K+", label: "Training Sessions Logged" },
+                { stat: "98%", label: "User Satisfaction" }
+              ].map((item, idx) => (
+                <Card key={idx} className="card-neon p-6">
+                  <div className="text-3xl font-bold text-neon-pink neon-glow mb-2">
+                    {item.stat}
+                  </div>
+                  <p className="text-muted-foreground">{item.label}</p>
+                </Card>
+              ))}
             </div>
-          </Card>
+          </div>
+        </section>
 
-          <Card className="card-neon p-4 flex items-start gap-3">
-            <BarChart3 className="text-neon-pink flex-shrink-0 mt-1" size={24} />
-            <div>
-              <h3 className="font-bold text-foreground">Analytics</h3>
-              <p className="text-sm text-muted-foreground">Visualize trends and personal bests</p>
-            </div>
-          </Card>
-        </div>
+        {/* CTA Section */}
+        <section className="py-20 px-4">
+          <div className="max-w-3xl mx-auto text-center space-y-8">
+            <h2 className="text-4xl font-bold text-neon-pink neon-glow">
+              Ready to Transform Your Training?
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Join the rugby community and start tracking your path to excellence
+            </p>
 
-        {/* CTA Button */}
-        <a href={getLoginUrl()} className="w-full max-w-xs">
-          <Button className="btn-neon w-full text-lg py-6">
-            <Zap size={20} className="mr-2" />
-            Get Started Now
-          </Button>
-        </a>
+            <Button
+              onClick={() => window.location.href = getLoginUrl()}
+              className="btn-neon px-12 py-8 text-xl font-bold group mx-auto block"
+            >
+              Get Started Free
+              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={24} />
+            </Button>
+
+            <p className="text-sm text-muted-foreground">
+              No credit card required. Start tracking your performance today.
+            </p>
+          </div>
+        </section>
 
         {/* Footer */}
-        <div className="text-center text-sm text-muted-foreground mt-8">
-          <p>Secure authentication powered by Manus</p>
-        </div>
+        <footer className="border-t border-border py-8 px-4 text-center text-muted-foreground">
+          <p>© 2026 Rugby Tracker. Train Harder. Play Smarter.</p>
+        </footer>
       </div>
     );
   }
 
-  // Dashboard for authenticated users
+  // Authenticated Dashboard
   return (
-    <div className="container py-6 space-y-8">
-      {/* Welcome Section */}
+    <div className="container py-6 space-y-6 pb-20">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold text-neon-pink neon-glow">
+        <h1 className="text-3xl font-bold text-neon-pink neon-glow">
           Welcome back, {user?.name}! ⚡
         </h1>
-        <p className="text-muted-foreground text-lg">
-          Ready to crush your training goals?
-        </p>
+        <p className="text-muted-foreground">Ready to crush your training goals?</p>
       </div>
 
-      {/* Quick Stats */}
+      {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="stat-box">
-          <div className="stat-box-label">This Week</div>
-          <div className="stat-box-value">5</div>
-          <div className="text-xs text-muted-foreground">Workouts</div>
+        <Card className="card-neon p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">This Week</p>
+          <p className="text-3xl font-bold text-neon-pink neon-glow mt-2">5</p>
+          <p className="text-xs text-muted-foreground mt-1">Workouts</p>
         </Card>
-
-        <Card className="stat-box">
-          <div className="stat-box-label">Total Distance</div>
-          <div className="stat-box-value">7.5</div>
-          <div className="text-xs text-muted-foreground">km</div>
+        <Card className="card-neon p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Distance</p>
+          <p className="text-3xl font-bold text-neon-cyan neon-glow-cyan mt-2">7.5</p>
+          <p className="text-xs text-muted-foreground mt-1">km</p>
         </Card>
-
-        <Card className="stat-box">
-          <div className="stat-box-label">Push-ups</div>
-          <div className="stat-box-value">45</div>
-          <div className="text-xs text-muted-foreground">PB</div>
+        <Card className="card-neon p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Push-ups PB</p>
+          <p className="text-3xl font-bold text-neon-purple mt-2">45</p>
+          <p className="text-xs text-muted-foreground mt-1">PB</p>
         </Card>
-
-        <Card className="stat-box">
-          <div className="stat-box-label">Recent Match</div>
-          <div className="stat-box-value text-neon-cyan">WIN</div>
-          <div className="text-xs text-muted-foreground">28-21</div>
+        <Card className="card-neon p-4">
+          <p className="text-xs text-muted-foreground uppercase tracking-wide">Recent Match</p>
+          <p className="text-3xl font-bold text-neon-pink neon-glow mt-2">WIN</p>
+          <p className="text-xs text-muted-foreground mt-1">28-21</p>
         </Card>
       </div>
 
-      {/* Notification & Sharing Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Button
-          onClick={async () => {
-            const granted = await NotificationService.requestPermission();
-            if (granted) {
-              toast.success("Notifications enabled!");
-              await NotificationService.sendTrainingReminder("gym workout");
-            } else {
-              toast.error("Notification permission denied");
-            }
-          }}
-          className="btn-neon flex items-center gap-2"
-        >
-          <Bell size={18} />
-          Enable Notifications
+      {/* Action Buttons */}
+      <div className="grid grid-cols-2 gap-4">
+        <Button asChild className="btn-neon h-auto py-4 flex flex-col items-center gap-2">
+          <Link href="/training">
+            <Dumbbell size={24} />
+            <span>Log Training</span>
+          </Link>
         </Button>
-        <Button
-          onClick={() => {
-            SocialShareService.shareTrainingAchievement("Push-ups", "45 reps", "gym");
-          }}
-          className="btn-neon flex items-center gap-2"
-        >
-          <Share2 size={18} />
-          Share Achievement
+        <Button asChild className="btn-neon h-auto py-4 flex flex-col items-center gap-2">
+          <Link href="/matches">
+            <Trophy size={24} />
+            <span>Add Match</span>
+          </Link>
+        </Button>
+        <Button asChild className="btn-neon h-auto py-4 flex flex-col items-center gap-2">
+          <Link href="/goals">
+            <Target size={24} />
+            <span>Set Goals</span>
+          </Link>
+        </Button>
+        <Button asChild className="btn-neon h-auto py-4 flex flex-col items-center gap-2">
+          <Link href="/analytics">
+            <BarChart3 size={24} />
+            <span>View Analytics</span>
+          </Link>
         </Button>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link href="/training">
-          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">💪</div>
-              <div>
-                <h3 className="font-bold text-foreground">Log Training</h3>
-                <p className="text-sm text-muted-foreground">Add a new workout session</p>
-              </div>
-            </div>
-          </Card>
-        </Link>
-
-        <Link href="/matches">
-          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">🏉</div>
-              <div>
-                <h3 className="font-bold text-foreground">Add Match</h3>
-                <p className="text-sm text-muted-foreground">Record match statistics</p>
-              </div>
-            </div>
-          </Card>
-        </Link>
-
-        <Link href="/goals">
-          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">🎯</div>
-              <div>
-                <h3 className="font-bold text-foreground">Set Goals</h3>
-                <p className="text-sm text-muted-foreground">Create new personal goals</p>
-              </div>
-            </div>
-          </Card>
-        </Link>
-
-        <Link href="/analytics">
-          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">📊</div>
-              <div>
-                <h3 className="font-bold text-foreground">View Analytics</h3>
-                <p className="text-sm text-muted-foreground">Check your progress</p>
-              </div>
-            </div>
-          </Card>
-        </Link>
+      <div className="grid grid-cols-2 gap-4">
+        <Button
+          onClick={() => NotificationService.requestPermission()}
+          className="btn-neon w-full"
+        >
+          <Bell size={18} className="mr-2" />
+          Enable Notifications
+        </Button>
+        <Button
+          onClick={() => SocialShareService.shareTrainingAchievement("Workout Session", "Completed!", "gym")}
+          className="btn-neon w-full"
+        >
+          <Share2 size={18} className="mr-2" />
+          Share Achievement
+        </Button>
       </div>
-
-      {/* Recent Activity */}
-      <Card className="card-neon p-6">
-        <h2 className="text-2xl font-bold text-neon-cyan mb-4">Recent Activity</h2>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center pb-3 border-b border-border">
-            <div>
-              <p className="font-semibold text-foreground">Gym Session - Upper Body</p>
-              <p className="text-sm text-muted-foreground">1 day ago • 60 min</p>
-            </div>
-            <div className="text-neon-pink font-bold">8/10</div>
-          </div>
-          <div className="flex justify-between items-center pb-3 border-b border-border">
-            <div>
-              <p className="font-semibold text-foreground">Running - 7.5 km</p>
-              <p className="text-sm text-muted-foreground">2 days ago • 45 min</p>
-            </div>
-            <div className="text-neon-cyan font-bold">7/10</div>
-          </div>
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="font-semibold text-foreground">Match vs Central High</p>
-              <p className="text-sm text-muted-foreground">7 days ago • WIN 28-21</p>
-            </div>
-            <div className="text-neon-cyan font-bold">12 tackles</div>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 }
