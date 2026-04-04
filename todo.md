@@ -72,6 +72,12 @@
 - [x] Performance optimization
 - [x] Cross-browser testing
 
+## Phase 11: Exercise Dropdown Feature
+- [x] Add exercise dropdown menu for quick selection
+- [x] Store and retrieve user's exercise history
+- [x] Populate dropdown with previously logged exercises
+- [x] Allow quick exercise selection in gym form
+
 ## Future Enhancements (Not MVP)
 - [ ] Team invites and team management
 - [ ] Coach dashboard and player comparison

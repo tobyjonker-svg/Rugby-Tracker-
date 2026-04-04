@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { ExerciseDropdown } from "@/components/ExerciseDropdown";
 
 export default function Training() {
   const [activeTab, setActiveTab] = useState("gym");
@@ -41,6 +42,21 @@ export default function Training() {
 
   const trainingMutation = trpc.training.create.useMutation();
   const trainingList = trpc.training.list.useQuery({ limit: 20 });
+
+  // Extract unique exercises from training history
+  const getExerciseHistory = () => {
+    const exercises = new Set<string>();
+    trainingList.data?.forEach((session: any) => {
+      if (session.gymExercises) {
+        session.gymExercises.forEach((ex: any) => {
+          if (ex.exerciseName) exercises.add(ex.exerciseName);
+        });
+      }
+    });
+    return Array.from(exercises).sort();
+  };
+
+  const exerciseHistory = getExerciseHistory();
 
   const handleAddGymExercise = () => {
     setGymExercises([
@@ -280,15 +296,15 @@ export default function Training() {
                 <h3 className="font-bold text-neon-cyan">Exercises</h3>
                 {gymExercises.map((exercise, idx) => (
                   <div key={idx} className="space-y-2 p-3 bg-background rounded">
-                    <Input
-                      placeholder="Exercise name"
+                    <ExerciseDropdown
                       value={exercise.exerciseName}
-                      onChange={(e) => {
+                      onChange={(value) => {
                         const updated = [...gymExercises];
-                        updated[idx].exerciseName = e.target.value;
+                        updated[idx].exerciseName = value;
                         setGymExercises(updated);
                       }}
-                      className="bg-input border-border text-foreground"
+                      placeholder="Exercise name"
+                      exerciseHistory={exerciseHistory}
                     />
                     <div className="grid grid-cols-4 gap-2">
                       <Input
