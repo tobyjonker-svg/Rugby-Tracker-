@@ -1,0 +1,1 @@
+ALTER TABLE `running_logs` ADD `sessionType` varchar(50) DEFAULT 'steady';

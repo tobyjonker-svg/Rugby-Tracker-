@@ -16,6 +16,9 @@ export default function Training() {
   const [duration, setDuration] = useState("");
   const [effortLevel, setEffortLevel] = useState("5");
   const [notes, setNotes] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "gym" | "running" | "conditioning">("all");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
 
   // Gym state
   const [gymExercises, setGymExercises] = useState<
@@ -57,6 +60,59 @@ export default function Training() {
   };
 
   const exerciseHistory = getExerciseHistory();
+
+  // Filter training sessions
+  const filteredSessions = trainingList.data?.filter((session: any) => {
+    const sessionDate = new Date(session.date);
+    const startDate = filterStartDate ? new Date(filterStartDate) : null;
+    const endDate = filterEndDate ? new Date(filterEndDate) : null;
+
+    const typeMatch = filterType === "all" || session.type === filterType;
+    const dateMatch =
+      (!startDate || sessionDate >= startDate) &&
+      (!endDate || sessionDate <= endDate);
+
+    return typeMatch && dateMatch;
+  }) || [];
+
+  // CSV Export function
+  const exportToCSV = () => {
+    if (!filteredSessions.length) {
+      toast.error("No sessions to export");
+      return;
+    }
+
+    const headers = [
+      "Date",
+      "Type",
+      "Duration (min)",
+      "Effort Level",
+      "Notes",
+    ];
+    const rows = filteredSessions.map((session: any) => [
+      new Date(session.date).toLocaleDateString(),
+      session.type.replace("_", " "),
+      session.duration,
+      session.effortLevel,
+      session.notes || "",
+    ]);
+
+    const csv = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `training-log-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success("Training log exported!");
+  };
 
   const handleAddGymExercise = () => {
     setGymExercises([
@@ -134,7 +190,9 @@ export default function Training() {
         effortLevel: parseInt(effortLevel),
         notes: notes || undefined,
         runningData: {
-          distance: runningData.distance ? parseFloat(runningData.distance) : undefined,
+          distance: runningData.distance
+            ? parseFloat(runningData.distance)
+            : undefined,
           time: runningData.time ? parseInt(runningData.time) : undefined,
           sprintDistance: runningData.sprintDistance
             ? parseFloat(runningData.sprintDistance)
@@ -639,14 +697,67 @@ export default function Training() {
         </TabsContent>
       </Tabs>
 
+      {/* Filters & Export */}
+      <Card className="card-neon p-6">
+        <h2 className="text-xl font-bold text-neon-cyan mb-4">Filter Sessions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div>
+            <Label className="text-foreground text-sm">Type</Label>
+            <select
+              value={filterType}
+              onChange={(e) =>
+                setFilterType(
+                  e.target.value as "all" | "gym" | "running" | "conditioning"
+                )
+              }
+              className="w-full px-3 py-2 bg-input border border-border text-foreground rounded text-sm"
+            >
+              <option value="all">All Types</option>
+              <option value="gym">Gym</option>
+              <option value="running">Running</option>
+              <option value="conditioning">Conditioning</option>
+            </select>
+          </div>
+          <div>
+            <Label className="text-foreground text-sm">Start Date</Label>
+            <Input
+              type="date"
+              value={filterStartDate}
+              onChange={(e) => setFilterStartDate(e.target.value)}
+              className="bg-input border-border text-foreground text-sm"
+            />
+          </div>
+          <div>
+            <Label className="text-foreground text-sm">End Date</Label>
+            <Input
+              type="date"
+              value={filterEndDate}
+              onChange={(e) => setFilterEndDate(e.target.value)}
+              className="bg-input border-border text-foreground text-sm"
+            />
+          </div>
+          <div className="flex items-end">
+            <Button
+              onClick={exportToCSV}
+              className="btn-neon w-full text-sm"
+              disabled={!filteredSessions.length}
+            >
+              📥 Export CSV
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       {/* Recent Sessions */}
       <Card className="card-neon p-6">
-        <h2 className="text-xl font-bold text-neon-cyan mb-4">Recent Sessions</h2>
+        <h2 className="text-xl font-bold text-neon-cyan mb-4">
+          Recent Sessions ({filteredSessions.length})
+        </h2>
         {trainingList.isLoading ? (
           <p className="text-muted-foreground">Loading...</p>
-        ) : trainingList.data && trainingList.data.length > 0 ? (
+        ) : filteredSessions.length > 0 ? (
           <div className="space-y-3">
-            {trainingList.data.map((session) => (
+            {filteredSessions.map((session: any) => (
               <div
                 key={session.id}
                 className="flex justify-between items-center p-3 bg-background rounded border border-border"

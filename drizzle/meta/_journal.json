@@ -15,6 +15,13 @@
       "when": 1775293454839,
       "tag": "0001_stiff_bloodstorm",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1775295317712,
+      "tag": "0002_easy_gorilla_man",
+      "breakpoints": true
     }
   ]
 }

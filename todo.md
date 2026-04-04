@@ -78,6 +78,18 @@
 - [x] Populate dropdown with previously logged exercises
 - [x] Allow quick exercise selection in gym form
 
+## Phase 12: Running Exercise Dropdown & Session Filters
+- [x] Add running session type dropdown (tempo run, sprint intervals, long run)
+- [x] Add date range filter for training history
+- [x] Add type filter for training history (gym, running, conditioning)
+- [x] Implement filtered training list view
+
+## Phase 13: CSV Export Functionality
+- [x] Create CSV export for training logs
+- [x] Create CSV export for analytics data
+- [x] Add download button to training and analytics pages
+- [x] Format exported data with headers and proper formatting
+
 ## Future Enhancements (Not MVP)
 - [ ] Team invites and team management
 - [ ] Coach dashboard and player comparison
