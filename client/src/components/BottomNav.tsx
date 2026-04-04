@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Home, Dumbbell, Trophy, Target, BarChart3, User } from "lucide-react";
+import { Home, Dumbbell, Trophy, Target, BarChart3, User, Users } from "lucide-react";
 import { useLocation } from "wouter";
 
 export function BottomNav() {
@@ -14,6 +14,7 @@ export function BottomNav() {
     { path: "/goals", icon: Target, label: "Goals" },
     { path: "/analytics", icon: BarChart3, label: "Analytics" },
     { path: "/profile", icon: User, label: "Profile" },
+    { path: "/coach", icon: Users, label: "Coach" },
   ];
 
   return (

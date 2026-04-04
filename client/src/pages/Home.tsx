@@ -3,7 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
-import { Dumbbell, Trophy, Target, BarChart3, Zap } from "lucide-react";
+import { Dumbbell, Trophy, Target, BarChart3, Zap, Bell, Share2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { NotificationService } from "@/services/notificationService";
+import { SocialShareService } from "@/services/socialShareService";
+import { toast } from "sonner";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -113,6 +117,34 @@ export default function Home() {
           <div className="stat-box-value text-neon-cyan">WIN</div>
           <div className="text-xs text-muted-foreground">28-21</div>
         </Card>
+      </div>
+
+      {/* Notification & Sharing Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Button
+          onClick={async () => {
+            const granted = await NotificationService.requestPermission();
+            if (granted) {
+              toast.success("Notifications enabled!");
+              await NotificationService.sendTrainingReminder("gym workout");
+            } else {
+              toast.error("Notification permission denied");
+            }
+          }}
+          className="btn-neon flex items-center gap-2"
+        >
+          <Bell size={18} />
+          Enable Notifications
+        </Button>
+        <Button
+          onClick={() => {
+            SocialShareService.shareTrainingAchievement("Push-ups", "45 reps", "gym");
+          }}
+          className="btn-neon flex items-center gap-2"
+        >
+          <Share2 size={18} />
+          Share Achievement
+        </Button>
       </div>
 
       {/* Quick Actions */}

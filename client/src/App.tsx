@@ -13,6 +13,7 @@ import Matches from "./pages/Matches";
 import Goals from "./pages/Goals";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
+import CoachPortal from "./pages/CoachPortal";
 
 function Router() {
   const { isAuthenticated, loading } = useAuth();
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/goals" component={isAuthenticated ? Goals : Home} />
       <Route path="/analytics" component={isAuthenticated ? Analytics : Home} />
       <Route path="/profile" component={isAuthenticated ? Profile : Home} />
+      <Route path="/coach" component={CoachPortal} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
