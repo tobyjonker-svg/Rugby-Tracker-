@@ -118,59 +118,51 @@ export default function Home() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link href="/training">
-          <a>
-            <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="text-4xl">💪</div>
-                <div>
-                  <h3 className="font-bold text-foreground">Log Training</h3>
-                  <p className="text-sm text-muted-foreground">Add a new workout session</p>
-                </div>
+          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">💪</div>
+              <div>
+                <h3 className="font-bold text-foreground">Log Training</h3>
+                <p className="text-sm text-muted-foreground">Add a new workout session</p>
               </div>
-            </Card>
-          </a>
+            </div>
+          </Card>
         </Link>
 
         <Link href="/matches">
-          <a>
-            <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="text-4xl">🏉</div>
-                <div>
-                  <h3 className="font-bold text-foreground">Add Match</h3>
-                  <p className="text-sm text-muted-foreground">Record match statistics</p>
-                </div>
+          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">🏉</div>
+              <div>
+                <h3 className="font-bold text-foreground">Add Match</h3>
+                <p className="text-sm text-muted-foreground">Record match statistics</p>
               </div>
-            </Card>
-          </a>
+            </div>
+          </Card>
         </Link>
 
         <Link href="/goals">
-          <a>
-            <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="text-4xl">🎯</div>
-                <div>
-                  <h3 className="font-bold text-foreground">Set Goals</h3>
-                  <p className="text-sm text-muted-foreground">Create new personal goals</p>
-                </div>
+          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">🎯</div>
+              <div>
+                <h3 className="font-bold text-foreground">Set Goals</h3>
+                <p className="text-sm text-muted-foreground">Create new personal goals</p>
               </div>
-            </Card>
-          </a>
+            </div>
+          </Card>
         </Link>
 
         <Link href="/analytics">
-          <a>
-            <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="text-4xl">📊</div>
-                <div>
-                  <h3 className="font-bold text-foreground">View Analytics</h3>
-                  <p className="text-sm text-muted-foreground">Check your progress</p>
-                </div>
+          <Card className="card-neon p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="text-4xl">📊</div>
+              <div>
+                <h3 className="font-bold text-foreground">View Analytics</h3>
+                <p className="text-sm text-muted-foreground">Check your progress</p>
               </div>
-            </Card>
-          </a>
+            </div>
+          </Card>
         </Link>
       </div>
 
