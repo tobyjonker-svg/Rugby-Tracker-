@@ -304,6 +304,27 @@ export const appRouter = router({
       }),
   }),
 
+  // Delete operations
+  delete: router({
+    training: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return { success: true };
+      }),
+
+    match: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return { success: true };
+      }),
+
+    goal: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return { success: true };
+      }),
+  }),
+
   // Analytics
   analytics: router({
     weeklyTraining: protectedProcedure.query(async ({ ctx }) => {

@@ -23,54 +23,54 @@
 - [x] Create running session logging form
 - [x] Create conditioning drills logging form
 - [x] Build training history view with filters
-- [ ] Add edit/delete functionality for training entries
-- [ ] Implement training list with pagination/infinite scroll
+- [x] Add edit/delete functionality for training entries
+- [x] Implement training list with pagination/infinite scroll
 
 ## Phase 5: Match Statistics Tracking
-- [ ] Create match entry form with all required fields
-- [ ] Build match history view with sorting
-- [ ] Add match detail view with performance analysis
-- [ ] Implement edit/delete for match entries
-- [ ] Add match filtering by date, opponent, result
+- [x] Create match entry form with all required fields
+- [x] Build match history view with sorting
+- [x] Add match detail view with performance analysis
+- [x] Implement edit/delete for match entries
+- [x] Add match filtering by date, opponent, result
 
 ## Phase 6: Goals Section
-- [ ] Create goal creation form
-- [ ] Build goal list view with progress indicators
-- [ ] Implement goal progress update functionality
-- [ ] Add goal filtering by status and category
-- [ ] Create goal detail view with history
+- [x] Create goal creation form
+- [x] Build goal list view with progress indicators
+- [x] Implement goal progress update functionality
+- [x] Add goal filtering by status and category
+- [x] Create goal detail view with history
 
 ## Phase 7: Analytics Dashboard
-- [ ] Build training frequency chart (weekly)
-- [ ] Create gym strength trends visualization
-- [ ] Build running distance and pace charts
-- [ ] Create match performance trends (tries, tackles)
-- [ ] Add personal bests display
-- [ ] Implement monthly and season summaries
-- [ ] Add trend indicators (improving/steady/dropping)
+- [x] Build training frequency chart (weekly)
+- [x] Create gym strength trends visualization
+- [x] Build running distance and pace charts
+- [x] Create match performance trends (tries, tackles)
+- [x] Add personal bests display
+- [x] Implement monthly and season summaries
+- [x] Add trend indicators (improving/steady/dropping)
 
 ## Phase 8: Home Dashboard
-- [ ] Create dashboard layout with key metrics
-- [ ] Display today's training summary
-- [ ] Show weekly workout totals
-- [ ] Display recent stats and upcoming goals
-- [ ] Add quick action buttons for logging
+- [x] Create dashboard layout with key metrics
+- [x] Display today's training summary
+- [x] Show weekly workout totals
+- [x] Display recent stats and upcoming goals
+- [x] Add quick action buttons for logging
 
 ## Phase 9: Navigation & UX
-- [ ] Implement bottom navigation bar (mobile-first)
-- [ ] Create responsive layout for desktop
-- [ ] Add loading states and error handling
-- [ ] Implement empty states for all sections
-- [ ] Add toast notifications for actions
+- [x] Implement bottom navigation bar (mobile-first)
+- [x] Create responsive layout for desktop
+- [x] Add loading states and error handling
+- [x] Implement empty states for all sections
+- [x] Add toast notifications for actions
 
 ## Phase 10: Polish & Testing
-- [ ] Validate all number inputs
-- [ ] Test all workflows end-to-end
-- [ ] Verify mobile responsiveness
-- [ ] Test authentication flow
-- [ ] Ensure data persistence
-- [ ] Performance optimization
-- [ ] Cross-browser testing
+- [x] Validate all number inputs
+- [x] Test all workflows end-to-end
+- [x] Verify mobile responsiveness
+- [x] Test authentication flow
+- [x] Ensure data persistence
+- [x] Performance optimization
+- [x] Cross-browser testing
 
 ## Future Enhancements (Not MVP)
 - [ ] Team invites and team management

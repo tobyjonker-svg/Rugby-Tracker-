@@ -352,6 +352,32 @@
   .stat-box-label {
     @apply text-sm text-muted-foreground uppercase tracking-wider;
   }
+  
+  /* Text color utilities */
+  .text-neon-pink {
+    @apply text-[#ff006e];
+  }
+  
+  .text-neon-cyan {
+    @apply text-[#00f5ff];
+  }
+  
+  .text-neon-purple {
+    @apply text-[#b537f2];
+  }
+  
+  /* Border utilities */
+  .border-neon-pink {
+    @apply border-[#ff006e];
+  }
+  
+  .border-neon-cyan {
+    @apply border-[#00f5ff];
+  }
+  
+  .border-neon-purple {
+    @apply border-[#b537f2];
+  }
 }
 
 /* Scrollbar styling */
