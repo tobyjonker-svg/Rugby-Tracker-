@@ -14,6 +14,7 @@ import Goals from "./pages/Goals";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import CoachPortal from "./pages/CoachPortal";
+import Recommendations from "./pages/Recommendations";
 
 function Router() {
   const { isAuthenticated, loading } = useAuth();
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/analytics" component={isAuthenticated ? Analytics : Home} />
       <Route path="/profile" component={isAuthenticated ? Profile : Home} />
       <Route path="/coach" component={CoachPortal} />
+      <Route path="/recommendations" component={isAuthenticated ? Recommendations : Home} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

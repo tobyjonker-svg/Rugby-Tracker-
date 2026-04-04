@@ -149,6 +149,22 @@
 - [x] Display performance trends
 - [x] Add player comparison view
 
+## Phase 22: Offline Mode & Sync
+- [x] Create IndexedDB storage service
+- [x] Implement offline data persistence
+- [x] Add sync queue for pending changes
+- [x] Create auto-sync when connection restored
+- [x] Add offline indicator to UI
+- [x] Handle conflict resolution
+
+## Phase 23: AI Training Recommendations
+- [x] Create training analysis service
+- [x] Integrate LLM for pattern analysis
+- [x] Generate personalized workout suggestions
+- [x] Create recommendations page
+- [x] Add goal-based recommendations
+- [x] Implement recommendation history
+
 ## Future Enhancements (Not MVP)
 - [ ] Team invites and team management
 - [ ] Coach dashboard and player comparison

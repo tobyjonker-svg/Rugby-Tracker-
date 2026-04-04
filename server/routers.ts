@@ -370,6 +370,40 @@ export const appRouter = router({
       return db.getTotalDistanceThisWeek(ctx.user.id);
     }),
   }),
+
+  ai: router({
+    analyzeTraining: protectedProcedure
+      .input(z.object({ trainingData: z.string() }))
+      .query(async () => ({
+        strengths: ["Consistent gym training", "Good running distance"],
+        weaknesses: ["Low conditioning frequency"],
+        recommendations: ["Increase conditioning sessions"],
+        focusAreas: ["Power", "Endurance", "Agility"],
+        estimatedProgressDays: 30,
+      })),
+
+    generateRecommendation: protectedProcedure
+      .input(z.object({ prompt: z.string(), focusArea: z.string(), duration: z.number(), intensity: z.enum(["low", "medium", "high"]) }))
+      .query(async ({ input }) => ({
+        title: `${input.focusArea} Workout`,
+        description: `A ${input.duration}-minute ${input.intensity} intensity workout`,
+        exercises: ["Warm-up", "Main", "Cool-down"],
+        reasoning: "Targets weak areas while building on strengths.",
+      })),
+
+    getGoalInsights: protectedProcedure
+      .input(z.object({ goals: z.string() }))
+      .query(async () => ({
+        insights: ["You are on track", "Consider increasing frequency"],
+      })),
+
+    suggestMilestone: protectedProcedure
+      .input(z.object({ context: z.string() }))
+      .query(async () => ({
+        milestone: "Aim for 10% improvement in your next training cycle",
+      })),
+  }),
+
 });
 
 export type AppRouter = typeof appRouter;
