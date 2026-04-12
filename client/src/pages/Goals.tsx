@@ -16,7 +16,7 @@ export default function Goals() {
 
   const goalsMutation = trpc.goals.create.useMutation();
   const goalsList = trpc.goals.list.useQuery({ limit: 50 });
-  const updateProgressMutation = trpc.goals.updateProgress.useMutation();
+  const updateProgressMutation = trpc.goals.update.useMutation();
 
   const handleSubmit = async () => {
     if (!title || !targetNumber) {
@@ -48,7 +48,7 @@ export default function Goals() {
     try {
       await updateProgressMutation.mutateAsync({
         id: goalId,
-        progress: newProgress,
+        currentValue: newProgress,
       });
       toast.success("Goal progress updated!");
       goalsList.refetch();

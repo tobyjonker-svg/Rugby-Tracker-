@@ -175,6 +175,14 @@
 - [x] Update CoachPortal to display live player data
 - [x] Verify all charts use real data
 
+## Phase 25: Profile Photo Upload to S3
+- [ ] Add photoUrl field to users table
+- [ ] Create S3 upload endpoint in tRPC
+- [ ] Implement photo upload in Profile page
+- [ ] Store photo URL in database
+- [ ] Load photo from S3 on profile load
+- [ ] Test across multiple devices
+
 ## Future Enhancements (Not MVP)
 - [ ] Team invites and team management
 - [ ] Coach dashboard and player comparison

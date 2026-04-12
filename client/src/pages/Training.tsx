@@ -14,7 +14,6 @@ import { ConditioningExerciseDropdown } from "@/components/ConditioningExerciseD
 export default function Training() {
   const [activeTab, setActiveTab] = useState("gym");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [duration, setDuration] = useState("");
   const [effortLevel, setEffortLevel] = useState("5");
   const [notes, setNotes] = useState("");
   const [filterType, setFilterType] = useState<"all" | "gym" | "running" | "conditioning">("all");
@@ -22,6 +21,9 @@ export default function Training() {
   const [filterEndDate, setFilterEndDate] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
+  const trainingMutation = trpc.training.create.useMutation();
+  const trainingList = trpc.training.list.useQuery({ limit: 100 });
+  
   const deleteTraining = trpc.training.delete.useMutation({
     onSuccess: () => {
       toast.success("Training session deleted!");
@@ -56,35 +58,16 @@ export default function Training() {
     { exerciseType: "pushups", reps: "", time: "", notes: "" },
   ]);
 
-  const trainingMutation = trpc.training.create.useMutation();
-  const trainingList = trpc.training.list.useQuery({ limit: 20 });
-
   // Extract unique exercises from training history
   const getExerciseHistory = () => {
     const exercises = new Set<string>();
     trainingList.data?.forEach((session: any) => {
-      if (session.gymExercises) {
-        session.gymExercises.forEach((ex: any) => {
-          if (ex.exerciseName) exercises.add(ex.exerciseName);
-        });
-      }
+      if (session.notes) exercises.add(session.notes);
     });
     return Array.from(exercises).sort();
   };
 
   const exerciseHistory = getExerciseHistory();
-
-  // Get conditioning exercise history
-  const getConditioningExerciseHistory = () => {
-    const exercises = new Set<string>();
-    trainingList.data?.forEach((session: any) => {
-      // In a real app, we'd fetch conditioning logs
-      // For now, we'll use the predefined list
-    });
-    return Array.from(exercises).sort();
-  };
-
-  const conditioningExerciseHistory = getConditioningExerciseHistory();
 
   // Filter training sessions
   const filteredSessions = trainingList.data?.filter((session: any) => {
@@ -107,27 +90,15 @@ export default function Training() {
       return;
     }
 
-    const headers = [
-      "Date",
-      "Type",
-      "Duration (min)",
-      "Effort Level",
-      "Notes",
-    ];
+    const headers = ["Date", "Type", "Effort Level", "Notes"];
     const rows = filteredSessions.map((session: any) => [
       new Date(session.date).toLocaleDateString(),
       session.type.replace("_", " "),
-      session.duration,
       session.effortLevel,
       session.notes || "",
     ]);
 
-    const csv = [
-      headers.join(","),
-      ...rows.map((row) =>
-        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
-      ),
-    ].join("\n");
+    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -142,7 +113,7 @@ export default function Training() {
   const handleAddGymExercise = () => {
     setGymExercises([
       ...gymExercises,
-      { exerciseName: "", sets: "", reps: "", weight: "", notes: "" } as any,
+      { exerciseName: "", sets: "", reps: "", weight: "", notes: "" },
     ]);
   };
 
@@ -153,7 +124,7 @@ export default function Training() {
   const handleAddConditioningExercise = () => {
     setConditioningExercises([
       ...conditioningExercises,
-      { exerciseType: "pushups", reps: "", time: "", notes: "" } as any,
+      { exerciseType: "pushups", reps: "", time: "", notes: "" },
     ]);
   };
 
@@ -164,8 +135,8 @@ export default function Training() {
   };
 
   const handleSubmitGym = async () => {
-    if (!date || !duration) {
-      toast.error("Please fill in date and duration");
+    if (!date) {
+      toast.error("Please fill in date");
       return;
     }
 
@@ -173,37 +144,24 @@ export default function Training() {
       await trainingMutation.mutateAsync({
         date: new Date(date),
         type: "gym",
-        duration: parseInt(duration),
         effortLevel: parseInt(effortLevel),
-        notes: notes || undefined,
-        gymExercises: gymExercises
-          .filter((e) => e.exerciseName)
-          .map((e) => ({
-            exerciseName: e.exerciseName,
-            sets: e.sets ? parseInt(e.sets) : undefined,
-            reps: e.reps ? parseInt(e.reps) : undefined,
-            weight: e.weight ? parseFloat(e.weight) : undefined,
-            notes: e.notes || undefined,
-          })),
+        notes: `Gym: ${gymExercises.map((e) => e.exerciseName).join(", ")}`,
       });
 
       toast.success("Gym session logged!");
       setDate(new Date().toISOString().split("T")[0]);
-      setDuration("");
       setEffortLevel("5");
       setNotes("");
-      setGymExercises([
-        { exerciseName: "", sets: "", reps: "", weight: "", notes: "" },
-      ]);
+      setGymExercises([{ exerciseName: "", sets: "", reps: "", weight: "", notes: "" }]);
       trainingList.refetch();
     } catch (error) {
-      toast.error("Failed to log training session");
+      toast.error("Failed to log gym session");
     }
   };
 
   const handleSubmitRunning = async () => {
-    if (!date || !duration) {
-      toast.error("Please fill in date and duration");
+    if (!date) {
+      toast.error("Please fill in date");
       return;
     }
 
@@ -211,29 +169,12 @@ export default function Training() {
       await trainingMutation.mutateAsync({
         date: new Date(date),
         type: "running",
-        duration: parseInt(duration),
         effortLevel: parseInt(effortLevel),
-        notes: notes || undefined,
-        runningData: {
-          distance: runningData.distance
-            ? parseFloat(runningData.distance)
-            : undefined,
-          time: runningData.time ? parseInt(runningData.time) : undefined,
-          sprintDistance: runningData.sprintDistance
-            ? parseFloat(runningData.sprintDistance)
-            : undefined,
-          numberOfSprints: runningData.numberOfSprints
-            ? parseInt(runningData.numberOfSprints)
-            : undefined,
-          bestSprintTime: runningData.bestSprintTime
-            ? parseInt(runningData.bestSprintTime)
-            : undefined,
-        },
+        notes: `Running: ${runningData.distance}km in ${runningData.time}min`,
       });
 
       toast.success("Running session logged!");
       setDate(new Date().toISOString().split("T")[0]);
-      setDuration("");
       setEffortLevel("5");
       setNotes("");
       setRunningData({
@@ -245,13 +186,13 @@ export default function Training() {
       });
       trainingList.refetch();
     } catch (error) {
-      toast.error("Failed to log training session");
+      toast.error("Failed to log running session");
     }
   };
 
   const handleSubmitConditioning = async () => {
-    if (!date || !duration) {
-      toast.error("Please fill in date and duration");
+    if (!date) {
+      toast.error("Please fill in date");
       return;
     }
 
@@ -259,585 +200,502 @@ export default function Training() {
       await trainingMutation.mutateAsync({
         date: new Date(date),
         type: "conditioning",
-        duration: parseInt(duration),
         effortLevel: parseInt(effortLevel),
-        notes: notes || undefined,
-        conditioningExercises: conditioningExercises
-          .filter((e) => e.reps || e.time)
-          .map((e) => ({
-            exerciseType: e.exerciseType as any,
-            reps: e.reps ? parseInt(e.reps) : undefined,
-            time: e.time ? parseInt(e.time) : undefined,
-            notes: e.notes || undefined,
-          })),
+        notes: `Conditioning: ${conditioningExercises.map((e) => e.exerciseType).join(", ")}`,
       });
 
       toast.success("Conditioning session logged!");
       setDate(new Date().toISOString().split("T")[0]);
-      setDuration("");
       setEffortLevel("5");
       setNotes("");
-      setConditioningExercises([
-        { exerciseType: "pushups", reps: "", time: "", notes: "" },
-      ]);
+      setConditioningExercises([{ exerciseType: "pushups", reps: "", time: "", notes: "" }]);
       trainingList.refetch();
     } catch (error) {
-      toast.error("Failed to log training session");
+      toast.error("Failed to log conditioning session");
     }
   };
 
   return (
-    <div className="container py-6 space-y-6 pb-24">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-neon-pink neon-glow">
+    <div className="min-h-screen bg-black text-white p-4 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-cyan-400 to-purple-500">
           Training Log
         </h1>
-        <p className="text-muted-foreground">
-          Track your gym, running, and conditioning sessions
-        </p>
-      </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-card border hud-border">
-          <TabsTrigger value="gym" className="data-[state=active]:text-neon-pink">
-            💪 Gym
-          </TabsTrigger>
-          <TabsTrigger
-            value="running"
-            className="data-[state=active]:text-neon-pink"
-          >
-            🏃 Running
-          </TabsTrigger>
-          <TabsTrigger
-            value="conditioning"
-            className="data-[state=active]:text-neon-pink"
-          >
-            🔥 Conditioning
-          </TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-900 border border-pink-500/30">
+            <TabsTrigger
+              value="gym"
+              className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400"
+            >
+              💪 Gym
+            </TabsTrigger>
+            <TabsTrigger
+              value="running"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+            >
+              🏃 Running
+            </TabsTrigger>
+            <TabsTrigger
+              value="conditioning"
+              className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-400"
+            >
+              ⚡ Conditioning
+            </TabsTrigger>
+          </TabsList>
 
-        {/* GYM TAB */}
-        <TabsContent value="gym" className="space-y-4">
-          <Card className="card-neon p-6">
-            <h2 className="text-xl font-bold text-neon-cyan mb-6">
-              Add Gym Session
-            </h2>
+          {/* GYM TAB */}
+          <TabsContent value="gym" className="space-y-6">
+            <Card className="bg-gray-900 border border-pink-500/30 p-6">
+              <h2 className="text-2xl font-bold text-pink-400 mb-6">Log Gym Workout</h2>
 
-            <div className="space-y-4">
-              {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-foreground">Date</Label>
+                  <Label className="text-gray-300">Date</Label>
                   <Input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="bg-input border-border text-foreground"
+                    className="bg-gray-800 border-pink-500/30 text-white"
                   />
                 </div>
+
                 <div>
-                  <Label className="text-foreground">Duration (minutes)</Label>
+                  <Label className="text-gray-300">Effort Level (1-10)</Label>
                   <Input
                     type="number"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    placeholder="60"
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-foreground">Effort Level (1-10)</Label>
-                  <Input
-                    type="range"
                     min="1"
                     max="10"
                     value={effortLevel}
                     onChange={(e) => setEffortLevel(e.target.value)}
-                    className="w-full"
+                    className="bg-gray-800 border-pink-500/30 text-white"
                   />
-                  <div className="text-center text-neon-pink font-bold">
-                    {effortLevel}/10
-                  </div>
                 </div>
-              </div>
 
-              <div>
-                <Label className="text-foreground">Notes</Label>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="How did the session go?"
-                  className="bg-input border-border text-foreground"
-                />
-              </div>
+                <div>
+                  <Label className="text-gray-300">Exercises</Label>
+                  {gymExercises.map((exercise, index) => (
+                    <div key={index} className="space-y-2 mb-4 p-4 bg-gray-800 rounded border border-pink-500/20">
+                      <ExerciseDropdown
+                        value={exercise.exerciseName}
+                        onChange={(value) => {
+                          const updated = [...gymExercises];
+                          updated[index].exerciseName = value;
+                          setGymExercises(updated);
+                        }}
+                        exerciseHistory={exerciseHistory}
+                      />
 
-              {/* Exercises */}
-              <div className="space-y-3">
-                <h3 className="font-bold text-neon-cyan">Exercises</h3>
-                {gymExercises.map((exercise, idx) => (
-                  <div key={idx} className="space-y-2 p-3 bg-background rounded">
-                    <ExerciseDropdown
-                      value={exercise.exerciseName}
-                      onChange={(value) => {
-                        const updated = [...gymExercises];
-                        updated[idx].exerciseName = value;
-                        setGymExercises(updated);
-                      }}
-                      placeholder="Exercise name"
-                      exerciseHistory={exerciseHistory}
-                    />
-                    <div className="grid grid-cols-4 gap-2">
-                      <Input
-                        type="number"
-                        placeholder="Sets"
-                        value={exercise.sets}
-                        onChange={(e) => {
-                          const updated = [...gymExercises];
-                          updated[idx].sets = e.target.value;
-                          setGymExercises(updated);
-                        }}
-                        className="bg-input border-border text-foreground text-sm"
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Reps"
-                        value={exercise.reps}
-                        onChange={(e) => {
-                          const updated = [...gymExercises];
-                          updated[idx].reps = e.target.value;
-                          setGymExercises(updated);
-                        }}
-                        className="bg-input border-border text-foreground text-sm"
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Weight (kg)"
-                        value={exercise.weight}
-                        onChange={(e) => {
-                          const updated = [...gymExercises];
-                          updated[idx].weight = e.target.value;
-                          setGymExercises(updated);
-                        }}
-                        className="bg-input border-border text-foreground text-sm"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveGymExercise(idx)}
-                        className="text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Input
+                          type="number"
+                          placeholder="Sets"
+                          value={exercise.sets}
+                          onChange={(e) => {
+                            const updated = [...gymExercises];
+                            updated[index].sets = e.target.value;
+                            setGymExercises(updated);
+                          }}
+                          className="bg-gray-700 border-pink-500/30 text-white"
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Reps"
+                          value={exercise.reps}
+                          onChange={(e) => {
+                            const updated = [...gymExercises];
+                            updated[index].reps = e.target.value;
+                            setGymExercises(updated);
+                          }}
+                          className="bg-gray-700 border-pink-500/30 text-white"
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Weight (kg)"
+                          value={exercise.weight}
+                          onChange={(e) => {
+                            const updated = [...gymExercises];
+                            updated[index].weight = e.target.value;
+                            setGymExercises(updated);
+                          }}
+                          className="bg-gray-700 border-pink-500/30 text-white"
+                        />
+                      </div>
+
+                      {gymExercises.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveGymExercise(index)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  ))}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddGymExercise}
+                    className="border-pink-500/50 text-pink-400 hover:bg-pink-500/10"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Exercise
+                  </Button>
+                </div>
+
+                <div>
+                  <Label className="text-gray-300">Notes</Label>
+                  <Textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Additional notes..."
+                    className="bg-gray-800 border-pink-500/30 text-white"
+                  />
+                </div>
+
                 <Button
-                  variant="outline"
-                  onClick={handleAddGymExercise}
-                  className="w-full border-neon-cyan text-neon-cyan hover:bg-neon-cyan/10"
+                  onClick={handleSubmitGym}
+                  disabled={trainingMutation.isPending}
+                  className="w-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-700 hover:to-pink-600 text-white font-bold"
                 >
-                  <Plus size={16} className="mr-2" />
-                  Add Exercise
+                  {trainingMutation.isPending ? "Logging..." : "Log Gym Session"}
                 </Button>
               </div>
+            </Card>
+          </TabsContent>
 
-              <Button
-                onClick={handleSubmitGym}
-                className="btn-neon w-full"
-                disabled={trainingMutation.isPending}
-              >
-                {trainingMutation.isPending ? "Logging..." : "Log Gym Session"}
-              </Button>
-            </div>
-          </Card>
-        </TabsContent>
+          {/* RUNNING TAB */}
+          <TabsContent value="running" className="space-y-6">
+            <Card className="bg-gray-900 border border-cyan-500/30 p-6">
+              <h2 className="text-2xl font-bold text-cyan-400 mb-6">Log Running Session</h2>
 
-        {/* RUNNING TAB */}
-        <TabsContent value="running" className="space-y-4">
-          <Card className="card-neon p-6">
-            <h2 className="text-xl font-bold text-neon-cyan mb-6">
-              Add Running Session
-            </h2>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-foreground">Date</Label>
+                  <Label className="text-gray-300">Date</Label>
                   <Input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="bg-input border-border text-foreground"
+                    className="bg-gray-800 border-cyan-500/30 text-white"
                   />
                 </div>
-                <div>
-                  <Label className="text-foreground">Duration (minutes)</Label>
-                  <Input
-                    type="number"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    placeholder="45"
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-foreground">Distance (km)</Label>
+                  <Label className="text-gray-300">Effort Level (1-10)</Label>
                   <Input
                     type="number"
-                    step="0.1"
-                    value={runningData.distance}
-                    onChange={(e) =>
-                      setRunningData({ ...runningData, distance: e.target.value })
-                    }
-                    placeholder="7.5"
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-                <div>
-                  <Label className="text-foreground">Effort Level (1-10)</Label>
-                  <Input
-                    type="range"
                     min="1"
                     max="10"
                     value={effortLevel}
                     onChange={(e) => setEffortLevel(e.target.value)}
-                    className="w-full"
+                    className="bg-gray-800 border-cyan-500/30 text-white"
                   />
-                  <div className="text-center text-neon-pink font-bold">
-                    {effortLevel}/10
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-gray-300">Distance (km)</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={runningData.distance}
+                      onChange={(e) =>
+                        setRunningData({ ...runningData, distance: e.target.value })
+                      }
+                      className="bg-gray-800 border-cyan-500/30 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-gray-300">Time (minutes)</Label>
+                    <Input
+                      type="number"
+                      value={runningData.time}
+                      onChange={(e) =>
+                        setRunningData({ ...runningData, time: e.target.value })
+                      }
+                      className="bg-gray-800 border-cyan-500/30 text-white"
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-gray-300">Sprint Distance (m)</Label>
+                    <Input
+                      type="number"
+                      value={runningData.sprintDistance}
+                      onChange={(e) =>
+                        setRunningData({ ...runningData, sprintDistance: e.target.value })
+                      }
+                      className="bg-gray-800 border-cyan-500/30 text-white"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-gray-300">Number of Sprints</Label>
+                    <Input
+                      type="number"
+                      value={runningData.numberOfSprints}
+                      onChange={(e) =>
+                        setRunningData({ ...runningData, numberOfSprints: e.target.value })
+                      }
+                      className="bg-gray-800 border-cyan-500/30 text-white"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label className="text-foreground">Sprint Distance (km)</Label>
+                  <Label className="text-gray-300">Best Sprint Time (seconds)</Label>
                   <Input
                     type="number"
                     step="0.1"
-                    value={runningData.sprintDistance}
+                    value={runningData.bestSprintTime}
                     onChange={(e) =>
-                      setRunningData({
-                        ...runningData,
-                        sprintDistance: e.target.value,
-                      })
+                      setRunningData({ ...runningData, bestSprintTime: e.target.value })
                     }
-                    placeholder="2.0"
-                    className="bg-input border-border text-foreground"
+                    className="bg-gray-800 border-cyan-500/30 text-white"
                   />
                 </div>
+
                 <div>
-                  <Label className="text-foreground">Number of Sprints</Label>
-                  <Input
-                    type="number"
-                    value={runningData.numberOfSprints}
-                    onChange={(e) =>
-                      setRunningData({
-                        ...runningData,
-                        numberOfSprints: e.target.value,
-                      })
-                    }
-                    placeholder="6"
-                    className="bg-input border-border text-foreground"
+                  <Label className="text-gray-300">Notes</Label>
+                  <Textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Additional notes..."
+                    className="bg-gray-800 border-cyan-500/30 text-white"
                   />
                 </div>
+
+                <Button
+                  onClick={handleSubmitRunning}
+                  disabled={trainingMutation.isPending}
+                  className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold"
+                >
+                  {trainingMutation.isPending ? "Logging..." : "Log Running Session"}
+                </Button>
               </div>
+            </Card>
+          </TabsContent>
 
-              <div>
-                <Label className="text-foreground">Best Sprint Time (seconds)</Label>
-                <Input
-                  type="number"
-                  value={runningData.bestSprintTime}
-                  onChange={(e) =>
-                    setRunningData({
-                      ...runningData,
-                      bestSprintTime: e.target.value,
-                    })
-                  }
-                  placeholder="18"
-                  className="bg-input border-border text-foreground"
-                />
-              </div>
+          {/* CONDITIONING TAB */}
+          <TabsContent value="conditioning" className="space-y-6">
+            <Card className="bg-gray-900 border border-purple-500/30 p-6">
+              <h2 className="text-2xl font-bold text-purple-400 mb-6">Log Conditioning</h2>
 
-              <div>
-                <Label className="text-foreground">Notes</Label>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="How did the run go?"
-                  className="bg-input border-border text-foreground"
-                />
-              </div>
-
-              <Button
-                onClick={handleSubmitRunning}
-                className="btn-neon w-full"
-                disabled={trainingMutation.isPending}
-              >
-                {trainingMutation.isPending ? "Logging..." : "Log Running Session"}
-              </Button>
-            </div>
-          </Card>
-        </TabsContent>
-
-        {/* CONDITIONING TAB */}
-        <TabsContent value="conditioning" className="space-y-4">
-          <Card className="card-neon p-6">
-            <h2 className="text-xl font-bold text-neon-cyan mb-6">
-              Add Conditioning Session
-            </h2>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-foreground">Date</Label>
+                  <Label className="text-gray-300">Date</Label>
                   <Input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="bg-input border-border text-foreground"
+                    className="bg-gray-800 border-purple-500/30 text-white"
                   />
                 </div>
+
                 <div>
-                  <Label className="text-foreground">Duration (minutes)</Label>
+                  <Label className="text-gray-300">Effort Level (1-10)</Label>
                   <Input
                     type="number"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    placeholder="30"
-                    className="bg-input border-border text-foreground"
+                    min="1"
+                    max="10"
+                    value={effortLevel}
+                    onChange={(e) => setEffortLevel(e.target.value)}
+                    className="bg-gray-800 border-purple-500/30 text-white"
                   />
                 </div>
-              </div>
 
-              <div>
-                <Label className="text-foreground">Effort Level (1-10)</Label>
-                <Input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={effortLevel}
-                  onChange={(e) => setEffortLevel(e.target.value)}
-                  className="w-full"
-                />
-                <div className="text-center text-neon-pink font-bold">
-                  {effortLevel}/10
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <h3 className="font-bold text-neon-cyan">Exercises</h3>
-                {conditioningExercises.map((exercise, idx) => (
-                  <div key={idx} className="space-y-2 p-3 bg-background rounded">
-                    <ConditioningExerciseDropdown
-                      value={exercise.exerciseType}
-                      onChange={(value) => {
-                        const updated = [...conditioningExercises];
-                        updated[idx].exerciseType = value;
-                        setConditioningExercises(updated);
-                      }}
-                      exercises={[
-                        "Push-ups",
-                        "Sit-ups",
-                        "Pull-ups",
-                        "Squats",
-                        "Planks",
-                        "Burpees",
-                        "Lunges",
-                        "Shuttle Runs",
-                        "Box Jumps",
-                        "Mountain Climbers",
-                        "Dips",
-                        "Leg Raises",
-                      ]}
-                    />
-                    <div className="grid grid-cols-3 gap-2">
-                      <Input
-                        type="number"
-                        placeholder="Reps"
-                        value={exercise.reps}
-                        onChange={(e) => {
+                <div>
+                  <Label className="text-gray-300">Exercises</Label>
+                  {conditioningExercises.map((exercise, index) => (
+                    <div key={index} className="space-y-2 mb-4 p-4 bg-gray-800 rounded border border-purple-500/20">
+                      <ConditioningExerciseDropdown
+                        value={exercise.exerciseType}
+                        onChange={(value) => {
                           const updated = [...conditioningExercises];
-                          updated[idx].reps = e.target.value;
+                          updated[index].exerciseType = value;
                           setConditioningExercises(updated);
                         }}
-                        className="bg-input border-border text-foreground text-sm"
+                        exercises={["pushups", "burpees", "planks", "mountain climbers", "jumping jacks", "box jumps", "dips", "pull-ups", "squats", "lunges", "sit-ups", "plank holds"]}
                       />
-                      <Input
-                        type="number"
-                        placeholder="Secs"
-                        value={exercise.time}
-                        onChange={(e) => {
-                          const updated = [...conditioningExercises];
-                          updated[idx].time = e.target.value;
-                          setConditioningExercises(updated);
-                        }}
-                        className="bg-input border-border text-foreground text-sm"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveConditioningExercise(idx)}
-                        className="text-destructive hover:bg-destructive/10 w-full"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input
+                          type="number"
+                          placeholder="Reps"
+                          value={exercise.reps}
+                          onChange={(e) => {
+                            const updated = [...conditioningExercises];
+                            updated[index].reps = e.target.value;
+                            setConditioningExercises(updated);
+                          }}
+                          className="bg-gray-700 border-purple-500/30 text-white"
+                        />
+                        <Input
+                          type="number"
+                          placeholder="Time (seconds)"
+                          value={exercise.time}
+                          onChange={(e) => {
+                            const updated = [...conditioningExercises];
+                            updated[index].time = e.target.value;
+                            setConditioningExercises(updated);
+                          }}
+                          className="bg-gray-700 border-purple-500/30 text-white"
+                        />
+                      </div>
+
+                      {conditioningExercises.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveConditioningExercise(index)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  ))}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddConditioningExercise}
+                    className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Exercise
+                  </Button>
+                </div>
+
+                <div>
+                  <Label className="text-gray-300">Notes</Label>
+                  <Textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Additional notes..."
+                    className="bg-gray-800 border-purple-500/30 text-white"
+                  />
+                </div>
+
                 <Button
-                  variant="outline"
-                  onClick={handleAddConditioningExercise}
-                  className="w-full border-neon-cyan text-neon-cyan hover:bg-neon-cyan/10"
+                  onClick={handleSubmitConditioning}
+                  disabled={trainingMutation.isPending}
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white font-bold"
                 >
-                  <Plus size={16} className="mr-2" />
-                  Add Exercise
+                  {trainingMutation.isPending ? "Logging..." : "Log Conditioning Session"}
                 </Button>
               </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
-              <div>
-                <Label className="text-foreground">Notes</Label>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="How did the session go?"
-                  className="bg-input border-border text-foreground"
-                />
-              </div>
+        {/* FILTERS & EXPORT */}
+        <Card className="bg-gray-900 border border-gray-700 p-6 mt-8">
+          <h2 className="text-2xl font-bold text-gray-300 mb-6">Recent Sessions</h2>
 
-              <Button
-                onClick={handleSubmitConditioning}
-                className="btn-neon w-full"
-                disabled={trainingMutation.isPending}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+              <Label className="text-gray-400">Filter by Type</Label>
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value as any)}
+                className="w-full bg-gray-800 border border-gray-700 text-white p-2 rounded"
               >
-                {trainingMutation.isPending
-                  ? "Logging..."
-                  : "Log Conditioning Session"}
-              </Button>
+                <option value="all">All Types</option>
+                <option value="gym">Gym</option>
+                <option value="running">Running</option>
+                <option value="conditioning">Conditioning</option>
+              </select>
             </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
 
-      {/* Filters & Export */}
-      <Card className="card-neon p-6">
-        <h2 className="text-xl font-bold text-neon-cyan mb-4">Filter Sessions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <div>
-            <Label className="text-foreground text-sm">Type</Label>
-            <select
-              value={filterType}
-              onChange={(e) =>
-                setFilterType(
-                  e.target.value as "all" | "gym" | "running" | "conditioning"
-                )
-              }
-              className="w-full px-3 py-2 bg-input border border-border text-foreground rounded text-sm"
-            >
-              <option value="all">All Types</option>
-              <option value="gym">Gym</option>
-              <option value="running">Running</option>
-              <option value="conditioning">Conditioning</option>
-            </select>
-          </div>
-          <div>
-            <Label className="text-foreground text-sm">Start Date</Label>
-            <Input
-              type="date"
-              value={filterStartDate}
-              onChange={(e) => setFilterStartDate(e.target.value)}
-              className="bg-input border-border text-foreground text-sm"
-            />
-          </div>
-          <div>
-            <Label className="text-foreground text-sm">End Date</Label>
-            <Input
-              type="date"
-              value={filterEndDate}
-              onChange={(e) => setFilterEndDate(e.target.value)}
-              className="bg-input border-border text-foreground text-sm"
-            />
-          </div>
-          <div className="flex items-end">
-            <Button
-              onClick={exportToCSV}
-              className="btn-neon w-full text-sm"
-              disabled={!filteredSessions.length}
-            >
-              📥 Export CSV
-            </Button>
-          </div>
-        </div>
-      </Card>
+            <div>
+              <Label className="text-gray-400">Start Date</Label>
+              <Input
+                type="date"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
 
-      {/* Recent Sessions */}
-      <Card className="card-neon p-6">
-        <h2 className="text-xl font-bold text-neon-cyan mb-4">
-          Recent Sessions ({filteredSessions.length})
-        </h2>
-        {trainingList.isLoading ? (
-          <p className="text-muted-foreground">Loading...</p>
-        ) : filteredSessions.length > 0 ? (
-          <div className="space-y-3">
-            {filteredSessions.map((session: any) => (
-              <div
-                key={session.id}
-                className="flex justify-between items-center p-3 bg-background rounded border border-border"
-              >
-                <div>
-                  <p className="font-semibold text-foreground capitalize">
-                    {session.type.replace("_", " ")}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(session.date).toLocaleDateString()} •{" "}
-                    {session.duration} min
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-neon-pink font-bold">{session.effortLevel}/10</div>
-                  {deleteConfirm === session.id ? (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          deleteTraining.mutate({ id: session.id })
-                        }
-                        className="bg-destructive text-white hover:bg-destructive/90"
-                      >
-                        Confirm
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setDeleteConfirm(null)}
-                      >
-                        Cancel
-                      </Button>
+            <div>
+              <Label className="text-gray-400">End Date</Label>
+              <Input
+                type="date"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+            </div>
+          </div>
+
+          <Button
+            onClick={exportToCSV}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold mb-6"
+          >
+            📥 Export to CSV
+          </Button>
+
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            {filteredSessions.length === 0 ? (
+              <p className="text-gray-400">No training sessions found</p>
+            ) : (
+              filteredSessions.map((session: any) => (
+                <div
+                  key={session.id}
+                  className="bg-gray-800 border border-gray-700 p-4 rounded flex justify-between items-center"
+                >
+                  <div>
+                    <p className="text-gray-300">
+                      <strong>{new Date(session.date).toLocaleDateString()}</strong> -{" "}
+                      <span className="text-cyan-400 capitalize">{session.type}</span>
+                    </p>
+                    <p className="text-gray-500 text-sm">Effort: {session.effortLevel}/10</p>
+                    {session.notes && <p className="text-gray-400 text-sm">{session.notes}</p>}
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteConfirm(session.id)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+
+                  {deleteConfirm === session.id && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                      <Card className="bg-gray-900 border border-red-500 p-6">
+                        <p className="text-white mb-4">Delete this session?</p>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() =>
+                              deleteTraining.mutate({ id: session.id })
+                            }
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </Button>
+                          <Button
+                            onClick={() => setDeleteConfirm(null)}
+                            className="bg-gray-700 hover:bg-gray-600"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </Card>
                     </div>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setDeleteConfirm(session.id)}
-                      className="text-destructive hover:bg-destructive/10"
-                    >
-                      Delete
-                    </Button>
                   )}
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-        ) : (
-          <p className="text-muted-foreground">No sessions yet. Start logging!</p>
-        )}
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

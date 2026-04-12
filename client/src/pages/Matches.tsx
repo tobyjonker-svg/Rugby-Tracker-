@@ -66,46 +66,25 @@ export default function Matches() {
       await matchesMutation.mutateAsync({
         date: new Date(date),
         opponent,
-        competition: competition || undefined,
-        venue: venue || undefined,
-        homeAway: (homeAway as "home" | "away") || undefined,
-        position: position || undefined,
-        minutesPlayed: minutesPlayed ? parseInt(minutesPlayed) : undefined,
-        finalScore: finalScore || undefined,
-        result: (result as "win" | "loss" | "draw") || undefined,
-        notes: notes || undefined,
-        performanceStats: {
-          tacklesMade: stats.tacklesMade ? parseInt(stats.tacklesMade) : undefined,
-          tacklesMissed: stats.tacklesMissed ? parseInt(stats.tacklesMissed) : undefined,
-          triesScored: stats.triesScored ? parseInt(stats.triesScored) : undefined,
-          conversionsKicked: stats.conversionsKicked
-            ? parseInt(stats.conversionsKicked)
-            : undefined,
-          penaltiesKicked: stats.penaltiesKicked
-            ? parseInt(stats.penaltiesKicked)
-            : undefined,
-          dropGoals: stats.dropGoals ? parseInt(stats.dropGoals) : undefined,
-          carries: stats.carries ? parseInt(stats.carries) : undefined,
-          metresGained: stats.metresGained ? parseInt(stats.metresGained) : undefined,
-          turnoversWon: stats.turnoversWon ? parseInt(stats.turnoversWon) : undefined,
-          offloads: stats.offloads ? parseInt(stats.offloads) : undefined,
-          passesCompleted: stats.passesCompleted
-            ? parseInt(stats.passesCompleted)
-            : undefined,
-          knockOns: stats.knockOns ? parseInt(stats.knockOns) : undefined,
-          penaltiesConceded: stats.penaltiesConceded
-            ? parseInt(stats.penaltiesConceded)
-            : undefined,
-          lineBreaks: stats.lineBreaks ? parseInt(stats.lineBreaks) : undefined,
-          assists: stats.assists ? parseInt(stats.assists) : undefined,
-          kicksFromHand: stats.kicksFromHand ? parseInt(stats.kicksFromHand) : undefined,
-        },
+        finalScore: finalScore || "",
+        result: (result as "win" | "loss" | "draw") || "win",
+        position: position || "",
+        tackles: stats.tacklesMade ? parseInt(stats.tacklesMade) : 0,
+        tries: stats.triesScored ? parseInt(stats.triesScored) : 0,
+        assists: stats.assists ? parseInt(stats.assists) : 0,
+        conversions: stats.conversionsKicked ? parseInt(stats.conversionsKicked) : 0,
+        penalties: stats.penaltiesKicked ? parseInt(stats.penaltiesKicked) : 0,
+        carries: stats.carries ? parseInt(stats.carries) : 0,
+        meters: stats.metresGained ? parseInt(stats.metresGained) : 0,
+        offloads: stats.offloads ? parseInt(stats.offloads) : 0,
+        notes: notes || "",
       });
 
       toast.success("Match logged successfully!");
       setShowForm(false);
       setDate(new Date().toISOString().split("T")[0]);
       setOpponent("");
+      matchesList.refetch();
       setCompetition("");
       setVenue("");
       setHomeAway("home");
