@@ -18,7 +18,7 @@ export function TopNav() {
         {/* Logo */}
         <div className="flex items-center gap-2">
           <div className="text-2xl font-bold neon-glow">
-            ⚡ RUGBY TRACKER
+            ⚡ SPORT FITNESS TRACKER
           </div>
           <div className="hidden md:block text-xs text-neon-cyan neon-glow-cyan">
             Train Harder. Play Smarter.

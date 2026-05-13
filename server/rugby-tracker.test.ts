@@ -28,7 +28,7 @@ function createMockContext(): TrpcContext {
   };
 }
 
-describe("Rugby Tracker API", () => {
+describe("Sport Fitness Tracker API", () => {
   let ctx: TrpcContext;
   let caller: ReturnType<typeof appRouter.createCaller>;
 

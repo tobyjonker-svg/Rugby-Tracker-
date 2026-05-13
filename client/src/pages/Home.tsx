@@ -30,7 +30,7 @@ export default function Home() {
             </div>
 
             <h1 className="text-6xl md:text-7xl font-black neon-glow">
-              RUGBY TRACKER
+              SPORT FITNESS TRACKER
             </h1>
 
             <p className="text-3xl md:text-4xl font-bold text-neon-cyan neon-glow-cyan">
@@ -202,7 +202,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="border-t border-border py-8 px-4 text-center text-muted-foreground">
-          <p>© 2026 Rugby Tracker. Train Harder. Play Smarter.</p>
+          <p>© 2026 Sport Fitness Tracker. Train Harder. Play Smarter.</p>
         </footer>
       </div>
     );

@@ -28,8 +28,8 @@ export class NotificationService {
   ): Promise<void> {
     if (Notification.permission === "granted") {
       new Notification(title, {
-        icon: "/rugby-tracker-icon.png",
-        badge: "/rugby-tracker-badge.png",
+        icon: "/sport-fitness-tracker-icon.png",
+        badge: "/sport-fitness-tracker-badge.png",
         ...options,
       });
     }
