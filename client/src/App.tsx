@@ -30,16 +30,17 @@ function Router() {
     );
   }
 
+  // PREVIEW MODE: auth bypass enabled — all pages accessible without login
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/training" component={isAuthenticated ? Training : Home} />
-      <Route path="/matches" component={isAuthenticated ? Matches : Home} />
-      <Route path="/goals" component={isAuthenticated ? Goals : Home} />
-      <Route path="/analytics" component={isAuthenticated ? Analytics : Home} />
-      <Route path="/profile" component={isAuthenticated ? Profile : Home} />
+      <Route path="/training" component={Training} />
+      <Route path="/matches" component={Matches} />
+      <Route path="/goals" component={Goals} />
+      <Route path="/analytics" component={Analytics} />
+      <Route path="/profile" component={Profile} />
       <Route path="/coach" component={CoachPortal} />
-      <Route path="/recommendations" component={isAuthenticated ? Recommendations : Home} />
+      <Route path="/recommendations" component={Recommendations} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
