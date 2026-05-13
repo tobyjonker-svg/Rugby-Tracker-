@@ -270,8 +270,8 @@ export default function Training() {
     <>
       <div>
         <Label className={labelClass}>Date</Label>
-        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-          className={`bg-gray-800 border-${borderColor}-500/30 text-white`} />
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
+          className={`bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-pink-500`} />
       </div>
       <div>
         <Label className={labelClass}>Effort Level (1-10)</Label>
@@ -603,11 +603,11 @@ export default function Training() {
             </div>
             <div>
               <Label className="text-gray-400">Start Date</Label>
-              <Input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="bg-gray-800 border-gray-700 text-white" />
+              <input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-pink-500" />
             </div>
             <div>
               <Label className="text-gray-400">End Date</Label>
-              <Input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className="bg-gray-800 border-gray-700 text-white" />
+              <input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className="bg-gray-800 border border-gray-600 text-white rounded-md px-3 py-2 w-full text-sm focus:outline-none focus:ring-2 focus:ring-pink-500" />
             </div>
           </div>
 
