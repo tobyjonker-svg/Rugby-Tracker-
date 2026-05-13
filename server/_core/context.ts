@@ -1,6 +1,15 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
-import type { User } from "../../drizzle/schema";
 import { sdk } from "./sdk";
+
+// Inline user type for SQLite preview mode
+type User = {
+  id: number; openId: string; name: string | null; email: string | null;
+  loginMethod: string | null; role: "user" | "admin"; age: number | null;
+  position: string | null; height: number | null; weight: number | null;
+  dominantFoot: "left" | "right" | "both" | null; team: string | null;
+  profilePhotoUrl: string | null; seasonGoals: string | null;
+  createdAt: string | Date | null; updatedAt: string | Date | null; lastSignedIn: string | Date | null;
+};
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -24,9 +33,9 @@ const PREVIEW_USER: User = {
   team: null,
   profilePhotoUrl: null,
   seasonGoals: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  lastSignedIn: new Date(),
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  lastSignedIn: new Date().toISOString(),
 };
 
 export async function createContext(

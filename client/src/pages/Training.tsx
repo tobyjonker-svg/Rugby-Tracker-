@@ -12,6 +12,7 @@ import { ExerciseDropdown } from "@/components/ExerciseDropdown";
 import { ConditioningExerciseDropdown } from "@/components/ConditioningExerciseDropdown";
 
 const SPORT_TABS = [
+  { value: "rugby", label: "🏉 Rugby", color: "red" },
   { value: "gym", label: "💪 Gym", color: "pink" },
   { value: "running", label: "🏃 Running", color: "cyan" },
   { value: "conditioning", label: "⚡ Conditioning", color: "purple" },
@@ -255,6 +256,25 @@ export default function Training() {
     } catch { toast.error("Failed to log swimming session"); }
   };
 
+  // Rugby state
+  const [rugbyData, setRugbyData] = useState({
+    tackles: "", tries: "", assists: "", conversions: "", penalties: "",
+    carries: "", meters: "", offloads: "", duration: "",
+  });
+
+  const handleSubmitRugby = async () => {
+    if (!date) { toast.error("Please fill in date"); return; }
+    try {
+      await trainingMutation.mutateAsync({
+        date: new Date(date), type: "rugby" as any, effortLevel: parseInt(effortLevel),
+        notes: `Rugby: Tackles ${rugbyData.tackles}, Tries ${rugbyData.tries}, Assists ${rugbyData.assists}, Carries ${rugbyData.carries}, Meters ${rugbyData.meters}`,
+      });
+      toast.success("Rugby session logged!");
+      setRugbyData({ tackles: "", tries: "", assists: "", conversions: "", penalties: "", carries: "", meters: "", offloads: "", duration: "" });
+      resetCommon();
+    } catch { toast.error("Failed to log rugby session"); }
+  };
+
   const inputClass = "bg-gray-800 border-gray-600 text-white";
   const labelClass = "text-gray-300";
 
@@ -290,7 +310,7 @@ export default function Training() {
         </h1>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 lg:grid-cols-9 bg-gray-900 border border-pink-500/30 mb-2 h-auto gap-1 p-1">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 lg:grid-cols-10 bg-gray-900 border border-pink-500/30 mb-2 h-auto gap-1 p-1">
             {SPORT_TABS.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}
                 className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-400 text-xs py-2">
@@ -298,6 +318,39 @@ export default function Training() {
               </TabsTrigger>
             ))}
           </TabsList>
+
+          {/* RUGBY TAB */}
+          <TabsContent value="rugby">
+            <Card className="bg-gray-900 border border-red-500/30 p-6">
+              <h2 className="text-2xl font-bold text-red-400 mb-6">🏉 Log Rugby Session</h2>
+              <div className="space-y-4">
+                <CommonFields borderColor="red" />
+                <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">Attack</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <SportField label="Tries" value={rugbyData.tries} onChange={(v: string) => setRugbyData({ ...rugbyData, tries: v })} />
+                  <SportField label="Assists" value={rugbyData.assists} onChange={(v: string) => setRugbyData({ ...rugbyData, assists: v })} />
+                  <SportField label="Carries" value={rugbyData.carries} onChange={(v: string) => setRugbyData({ ...rugbyData, carries: v })} />
+                  <SportField label="Meters Made" value={rugbyData.meters} onChange={(v: string) => setRugbyData({ ...rugbyData, meters: v })} />
+                  <SportField label="Offloads" value={rugbyData.offloads} onChange={(v: string) => setRugbyData({ ...rugbyData, offloads: v })} />
+                </div>
+                <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">Defence &amp; Kicking</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <SportField label="Tackles" value={rugbyData.tackles} onChange={(v: string) => setRugbyData({ ...rugbyData, tackles: v })} />
+                  <SportField label="Conversions" value={rugbyData.conversions} onChange={(v: string) => setRugbyData({ ...rugbyData, conversions: v })} />
+                  <SportField label="Penalties Kicked" value={rugbyData.penalties} onChange={(v: string) => setRugbyData({ ...rugbyData, penalties: v })} />
+                  <SportField label="Duration (minutes)" value={rugbyData.duration} onChange={(v: string) => setRugbyData({ ...rugbyData, duration: v })} />
+                </div>
+                <div>
+                  <Label className={labelClass}>Notes</Label>
+                  <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Match notes, position played, opposition..." className="bg-gray-800 border-red-500/30 text-white" />
+                </div>
+                <Button onClick={handleSubmitRugby} disabled={trainingMutation.isPending}
+                  className="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold">
+                  {trainingMutation.isPending ? "Logging..." : "Log Rugby Session"}
+                </Button>
+              </div>
+            </Card>
+          </TabsContent>
 
           {/* GYM TAB */}
           <TabsContent value="gym">

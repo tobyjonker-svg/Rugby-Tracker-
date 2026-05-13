@@ -4,8 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
-import { eq } from "drizzle-orm";
-import { trainingSessions, users, matchStats, goals } from "../drizzle/schema";
+// Table stubs no longer needed - using direct db functions
 
 export const appRouter = router({
   system: systemRouter,
@@ -34,9 +33,7 @@ export const appRouter = router({
         profilePhotoUrl: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const database = await db.getDb();
-        if (!database) throw new Error("Database not available");
-        await database.update(users).set(input).where(eq(users.id, ctx.user.id));
+        await db.upsertUser({ openId: ctx.user.openId, ...input });
         return { success: true };
       }),
     uploadPhoto: protectedProcedure
@@ -50,9 +47,7 @@ export const appRouter = router({
           const buffer = Buffer.from(base64Data, "base64");
           const fileKey = `profile-photos/${ctx.user.id}-${Date.now()}-${input.fileName}`;
           const { url } = await storagePut(fileKey, buffer, "image/jpeg");
-          const database = await db.getDb();
-          if (!database) throw new Error("Database not available");
-          await database.update(users).set({ profilePhotoUrl: url }).where(eq(users.id, ctx.user.id));
+          await db.upsertUser({ openId: ctx.user.openId, profilePhotoUrl: url });
           return { success: true, photoUrl: url };
         } catch (error) {
           console.error("Photo upload error:", error);
@@ -80,9 +75,7 @@ export const appRouter = router({
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        const database = await db.getDb();
-        if (!database) throw new Error("Database not available");
-        await database.delete(trainingSessions).where(eq(trainingSessions.id, input.id));
+        await db.deleteTrainingSession(input.id);
         return { success: true };
       }),
   }),
@@ -142,9 +135,7 @@ export const appRouter = router({
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        const database = await db.getDb();
-        if (!database) throw new Error("Database not available");
-        await database.delete(matchStats).where(eq(matchStats.id, input.id));
+        await db.deleteMatchStat(input.id);
         return { success: true };
       }),
   }),
@@ -159,15 +150,11 @@ export const appRouter = router({
         status: z.enum(["active", "completed", "abandoned"]).default("active"),
       }))
       .mutation(async ({ ctx, input }) => {
-        const database = await db.getDb();
-        if (!database) throw new Error("Database not available");
-        const result = await database.insert(goals).values({
-          userId: ctx.user.id,
+        await db.createGoal(ctx.user.id, {
           title: input.title,
           category: input.category,
-          targetNumber: input.targetNumber ? input.targetNumber.toString() : undefined,
+          targetNumber: input.targetNumber,
           deadline: input.deadline,
-          status: input.status,
         });
         return { success: true };
       }),
@@ -188,9 +175,7 @@ export const appRouter = router({
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        const database = await db.getDb();
-        if (!database) throw new Error("Database not available");
-        await database.delete(goals).where(eq(goals.id, input.id));
+        await db.deleteGoal(input.id);
         return { success: true };
       }),
   }),
