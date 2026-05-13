@@ -65,7 +65,7 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         date: z.date(),
-        type: z.enum(["gym", "running", "conditioning"]),
+        type: z.enum(["gym", "running", "conditioning", "rugby_practice", "recovery", "speed_work", "skills_practice", "tennis", "netball", "cricket", "hockey", "golf", "swimming", "other"]),
         effortLevel: z.number().min(1).max(10),
         notes: z.string().optional(),
       }))
@@ -91,18 +91,44 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         date: z.date(),
+        sport: z.enum(["rugby", "tennis", "netball", "cricket", "hockey", "golf", "swimming"]).default("rugby"),
         opponent: z.string(),
         result: z.enum(["win", "loss", "draw"]),
         finalScore: z.string(),
         position: z.string(),
-        tackles: z.number(),
-        tries: z.number(),
-        assists: z.number(),
-        conversions: z.number(),
-        penalties: z.number(),
-        carries: z.number(),
-        meters: z.number(),
-        offloads: z.number(),
+        // Rugby stats
+        tackles: z.number().optional().default(0),
+        tries: z.number().optional().default(0),
+        assists: z.number().optional().default(0),
+        conversions: z.number().optional().default(0),
+        penalties: z.number().optional().default(0),
+        carries: z.number().optional().default(0),
+        meters: z.number().optional().default(0),
+        offloads: z.number().optional().default(0),
+        // Tennis stats
+        setsWon: z.number().optional().default(0),
+        setsLost: z.number().optional().default(0),
+        aces: z.number().optional().default(0),
+        doubleFaults: z.number().optional().default(0),
+        // Netball stats
+        goalsScored: z.number().optional().default(0),
+        goalAttempts: z.number().optional().default(0),
+        intercepts: z.number().optional().default(0),
+        // Cricket stats
+        runsScored: z.number().optional().default(0),
+        wicketsTaken: z.number().optional().default(0),
+        catches: z.number().optional().default(0),
+        // Hockey stats
+        goals: z.number().optional().default(0),
+        shots: z.number().optional().default(0),
+        // Golf stats
+        holesPlayed: z.number().optional().default(0),
+        score: z.number().optional().default(0),
+        parScore: z.number().optional().default(0),
+        // Swimming stats
+        strokeType: z.string().optional().default(""),
+        distanceMeters: z.number().optional().default(0),
+        timeSeconds: z.number().optional().default(0),
         notes: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {

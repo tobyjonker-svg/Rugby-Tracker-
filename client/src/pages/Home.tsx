@@ -26,7 +26,7 @@ export default function Home() {
 
           <div className="text-center space-y-6 max-w-3xl relative z-10">
             <div className="inline-block px-4 py-2 bg-neon-pink/10 border border-neon-pink rounded-full">
-              <span className="text-neon-pink font-bold text-sm">🏉 Elite Rugby Performance Platform</span>
+              <span className="text-neon-pink font-bold text-sm">🏆 School Sports Performance Platform</span>
             </div>
 
             <h1 className="text-6xl md:text-7xl font-black neon-glow">
@@ -37,8 +37,14 @@ export default function Home() {
               Train Harder. Play Smarter. Track Everything.
             </p>
 
+            <div className="flex flex-wrap justify-center gap-2 my-2">
+              {["🏉 Rugby", "🎾 Tennis", "🏐 Netball", "🏏 Cricket", "🏑 Hockey", "⛳ Golf", "🏊 Swimming"].map((sport) => (
+                <span key={sport} className="px-3 py-1 bg-neon-pink/10 border border-neon-pink/30 rounded-full text-neon-pink text-sm font-semibold">{sport}</span>
+              ))}
+            </div>
+
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Your personal rugby performance companion. Log workouts, track match stats, set goals, and monitor your progress with real-time analytics. Designed for rugby players who are serious about improvement.
+              Your all-in-one school sports performance companion. Log training, track match stats across 7 sports, set goals, and monitor your progress with real-time analytics. Built for student athletes who are serious about improvement.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -66,7 +72,7 @@ export default function Home() {
               Powerful Features
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Everything you need to track, analyze, and improve your rugby performance
+              Everything you need to track, analyze, and improve your performance across all school sports
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -74,13 +80,13 @@ export default function Home() {
                 {
                   icon: Dumbbell,
                   title: "Training Logs",
-                  description: "Track gym, running, and conditioning sessions with detailed metrics",
+                  description: "Track gym, running, conditioning, and sport-specific sessions with detailed metrics",
                   color: "neon-pink"
                 },
                 {
                   icon: Trophy,
                   title: "Match Stats",
-                  description: "Log comprehensive game performance data including tackles, tries, and more",
+                  description: "Log sport-specific match stats for rugby, tennis, netball, cricket, hockey, golf, and swimming",
                   color: "neon-cyan"
                 },
                 {
@@ -122,17 +128,17 @@ export default function Home() {
         <section className="py-20 px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-4xl font-bold text-center mb-12 text-neon-cyan neon-glow-cyan">
-              Why Rugby Players Choose Us
+              Why School Athletes Choose Us
             </h2>
 
             <div className="space-y-4">
               {[
-                "Log training in seconds with smart exercise dropdowns",
+                "Track 7 school sports: Rugby, Tennis, Netball, Cricket, Hockey, Golf & Swimming",
+                "Log training in seconds with smart sport-specific forms",
                 "Visualize your progress with interactive analytics charts",
                 "Get AI-powered recommendations tailored to your goals",
                 "Access your data offline and sync automatically",
-                "Share achievements on social media",
-                "Track 16+ match performance metrics"
+                "Track sport-specific performance metrics for every match"
               ].map((benefit, idx) => (
                 <div key={idx} className="flex items-center gap-4 p-4 bg-background/50 rounded-lg border border-border hover:border-neon-cyan/50 transition-colors">
                   <CheckCircle className="text-neon-pink flex-shrink-0" size={24} />
@@ -147,10 +153,10 @@ export default function Home() {
         <section className="py-20 px-4 bg-background/50">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl font-bold mb-4 text-neon-purple">
-              Trusted by Rugby Players Worldwide
+              Trusted by School Athletes
             </h2>
             <p className="text-muted-foreground mb-12 text-lg">
-              Join thousands of rugby players improving their game every day
+              Join thousands of school athletes tracking their performance every day
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -174,10 +180,10 @@ export default function Home() {
         <section className="py-20 px-4">
           <div className="max-w-3xl mx-auto text-center space-y-8">
             <h2 className="text-4xl font-bold text-neon-pink neon-glow">
-              Ready to Transform Your Training?
+              Ready to Transform Your Game?
             </h2>
             <p className="text-lg text-muted-foreground">
-              Join the rugby community and start tracking your path to excellence
+              Join the school sports community and start tracking your path to excellence
             </p>
 
             <Button

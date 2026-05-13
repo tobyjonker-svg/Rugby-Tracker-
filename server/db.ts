@@ -264,6 +264,7 @@ export async function createMatchStat(
   userId: number,
   data: {
     date: Date;
+    sport?: string;
     opponent: string;
     competition?: string;
     venue?: string;
@@ -273,14 +274,33 @@ export async function createMatchStat(
     finalScore?: string;
     result?: string;
     notes?: string;
+    // Sport-specific stats stored in notes as JSON
+    [key: string]: any;
   }
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
+  // Build sport-specific notes with stats
+  const sportStats = { ...data };
+  delete sportStats.date;
+  delete sportStats.opponent;
+  delete sportStats.competition;
+  delete sportStats.venue;
+  delete sportStats.homeAway;
+  delete sportStats.position;
+  delete sportStats.minutesPlayed;
+  delete sportStats.finalScore;
+  delete sportStats.result;
+  delete sportStats.sport;
+  const notesWithStats = data.notes 
+    ? data.notes 
+    : JSON.stringify(sportStats);
+
   return db.insert(matchStats).values({
     userId,
     date: data.date,
+    sport: (data.sport as any) || "rugby",
     opponent: data.opponent,
     competition: data.competition,
     venue: data.venue,
@@ -289,7 +309,7 @@ export async function createMatchStat(
     minutesPlayed: data.minutesPlayed,
     finalScore: data.finalScore,
     result: data.result as any,
-    notes: data.notes,
+    notes: notesWithStats,
   });
 }
 
